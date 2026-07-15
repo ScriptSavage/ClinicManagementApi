@@ -36,12 +36,12 @@ public class CreatePatientValidator : AbstractValidator<AuthDto.RegisterNewPatie
         RuleFor(e => e.Password)
             .NotEmpty().WithMessage("Password cannot be empty")
             .NotNull().WithMessage("Password is required")
-            .MinimumLength(6).WithMessage("Password length must be 8 or more");
+            .MinimumLength(8).WithMessage("Password length must be 8 or more");
         
         RuleFor(e=>e.ConfirmPassword)
             .NotEmpty().WithMessage("Confirm password cannot be empty")
             .NotNull().WithMessage("Confirm password is required")
-            .Equal(x=>x.ConfirmPassword).WithMessage("Confirm password doesn't match");
+            .Equal(x=>x.Password).WithMessage("Confirm password doesn't match");
         
         RuleFor(e => e.PhoneNumber)
             .NotEmpty().WithMessage("Phone number cannot be empty")
