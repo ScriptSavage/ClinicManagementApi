@@ -7,6 +7,10 @@ public class Doctor
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
 
+ 
+    public ICollection<Specialization> Specializations { get; set; } = [];
+    public ICollection<Prescription> Prescriptions { get; set; } = [];
+    public ICollection<Visit> Visits { get; set; } = [];
 
     public ApplicationUser User { get; set; } = null!;
     public Guid UserId { get; set; }

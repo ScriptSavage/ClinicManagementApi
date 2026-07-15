@@ -8,6 +8,10 @@ public class Patient
     public string Pesel { get; set; } = null!;
     public DateTime DateOfBirth { get; set; }
 
+    public Address? Address { get; set; }
+
+    public ICollection<Visit> Visits { get; set; } = [];
+    public ICollection<Prescription> Prescriptions { get; set; } = [];
 
     public ApplicationUser ApplicationUser { get; set; } = null!;
     public Guid UserId { get; set; }
