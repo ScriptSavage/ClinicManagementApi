@@ -1,5 +1,6 @@
 using Api.Middlewares;
 using ApplicationCore.Extensions;
+using ApplicationCore.Seeders;
 using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,8 @@ builder.Services.AddScoped<GlobalErrorHandlingMiddleware>();
 
 
 var app = builder.Build();
+await RoleSeeder.SeedRolesAsync(app.Services);
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -21,6 +24,8 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.MapControllers();

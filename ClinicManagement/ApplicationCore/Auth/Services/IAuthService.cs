@@ -4,5 +4,8 @@ namespace ApplicationCore.Auth.Services;
 
 public interface IAuthService
 {
-   Task RegisterNewPatient(AuthDto.RegisterNewPatient request); 
+   Task<string> RegisterNewPatient(AuthDto.RegisterNewPatient request);
+
+   Task<string> GenerateAccessToken(AuthDto.LoginDto request);
+
 }
