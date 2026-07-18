@@ -11,4 +11,9 @@ public static class AuthDto
         string Password,
         string ConfirmPassword,
         string PhoneNumber);
+
+    public record LoginDto(
+        string Username,
+        string Password);
+
 }
