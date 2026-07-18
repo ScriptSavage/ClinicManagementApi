@@ -19,7 +19,19 @@ public class AuthController : ControllerBase
     [Route("register")]
     public async Task<IActionResult> RegisterNewPatient([FromBody] AuthDto.RegisterNewPatient request)
     {
-        await _authService.RegisterNewPatient(request);
-        return Ok(new { Message = "Registration Successful" });
+        var loginNumber = await _authService.RegisterNewPatient(request);
+        return Ok(new { 
+            message = "Account created successfully",
+            login = loginNumber 
+        });
     }
+
+    [HttpPost]
+    [Route("login")]
+    public async Task<IActionResult> Login([FromBody] AuthDto.LoginDto loginRequest)
+    {
+        var accessToken = await _authService.GenerateAccessToken(loginRequest);
+        return Ok(accessToken);
+    }
+
 }
