@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation;
 
 namespace Api.Middlewares;
 
-public class GlobalErrorHandlingMiddleware :  IMiddleware
+public class GlobalErrorHandlingMiddleware : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -12,7 +12,7 @@ public class GlobalErrorHandlingMiddleware :  IMiddleware
         }
         catch(ValidationException ex)
         {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+           context.Response.StatusCode =  StatusCodes.Status400BadRequest;
         }
         catch (Exception e)
         {
