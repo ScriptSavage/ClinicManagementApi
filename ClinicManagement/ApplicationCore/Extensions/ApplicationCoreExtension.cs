@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.Auth.Dto;
 using ApplicationCore.Auth.Services;
 using ApplicationCore.Auth.Validators;
+using ApplicationCore.Doctor.Services;
 using FluentValidation;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +17,7 @@ public static class ApplicationCoreExtension
         services.ConfigureAuth(configuration);
 
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IDoctorService, DoctorService>();
         services.AddScoped<IValidator<AuthDto.RegisterNewPatient>, CreatePatientValidator>();
     }
 }
