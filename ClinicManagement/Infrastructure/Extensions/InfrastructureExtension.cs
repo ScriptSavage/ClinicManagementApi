@@ -1,6 +1,7 @@
 ﻿using Infrastructure.Context;
 using Infrastructure.Helpers;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.Doctor;
+using Infrastructure.Repositories.Patient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,9 +13,7 @@ public static class InfrastructureExtension
     public static void AddDataAccessLayer(this IServiceCollection services, IConfiguration configuration)
     {
         string connectionString = configuration.GetConnectionString("DefaultConnection");
-
         
-
         services.AddDbContext<DatabaseContext>(options =>
         {
             options.UseSqlServer(connectionString);
@@ -22,6 +21,7 @@ public static class InfrastructureExtension
 
 
         services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
