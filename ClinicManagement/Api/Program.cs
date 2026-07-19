@@ -15,6 +15,7 @@ builder.Services.AddScoped<GlobalErrorHandlingMiddleware>();
 
 var app = builder.Build();
 await RoleSeeder.SeedRolesAsync(app.Services);
+await AdminSeeder.SeedAdminAsync(app.Services, builder.Configuration);
 
 
 // Configure the HTTP request pipeline.
