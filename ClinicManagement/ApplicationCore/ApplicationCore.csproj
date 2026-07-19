@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Exceptions\" />
+      <Folder Include="Doctor\Validators\" />
       <Folder Include="Helpers\" />
     </ItemGroup>
 

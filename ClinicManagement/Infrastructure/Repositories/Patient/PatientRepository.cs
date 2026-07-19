@@ -1,7 +1,6 @@
 ﻿using Infrastructure.Context;
-using Infrastructure.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.Patient;
 
 public class PatientRepository : IPatientRepository
 {
@@ -12,7 +11,7 @@ public class PatientRepository : IPatientRepository
         _context = context;
     }
 
-    public async Task AddNewPatientAsync(Patient patient)
+    public async Task AddNewPatientAsync(Entities.Patient patient)
     {
         await _context.Patients.AddAsync(patient);
     }

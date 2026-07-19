@@ -7,6 +7,7 @@ using FluentValidation;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.Patient;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
