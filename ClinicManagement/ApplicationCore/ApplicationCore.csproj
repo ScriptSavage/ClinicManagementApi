@@ -18,8 +18,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Address\Services\" />
       <Folder Include="Doctor\Validators\" />
       <Folder Include="Helpers\" />
+      <Folder Include="Logs\" />
     </ItemGroup>
 
 </Project>
