@@ -3,6 +3,7 @@ using ApplicationCore.Exceptions;
 using Infrastructure.Repositories.Doctor;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
+using Infrastructure.Repositories.Specialization;
 using Microsoft.AspNetCore.Identity;
 
 namespace ApplicationCore.Doctor.Services;
@@ -10,14 +11,18 @@ namespace ApplicationCore.Doctor.Services;
 public class DoctorService : IDoctorService
 {
     private readonly IDoctorRepository  _doctorRepository;
+    private readonly ISpecializationRepository _specializationRepository;
     private readonly IUnitOfWork  _unitOfWork;
     private readonly UserManager<ApplicationUser> _userManager;
+    
 
     public DoctorService(IDoctorRepository doctorRepository,
+        ISpecializationRepository specializationRepository,
         IUnitOfWork unitOfWork,
         UserManager<ApplicationUser> userManager)
     {
         _doctorRepository = doctorRepository;
+        _specializationRepository = specializationRepository;
         _unitOfWork = unitOfWork;
         _userManager = userManager;
     }
@@ -41,7 +46,15 @@ public class DoctorService : IDoctorService
                 LastName = dto.LastName,
                 PWZ = dto.Pwz
             };
+
+            var specializations = await _specializationRepository.
+                GetSpecializations(dto.SpecializationsIds);
             
+            foreach (var specialization in specializations)
+            {
+                newDoctor.Specializations.Add(specialization);
+            }
+
             var newUser = new ApplicationUser()
             {
                UserName = dto.Login,
