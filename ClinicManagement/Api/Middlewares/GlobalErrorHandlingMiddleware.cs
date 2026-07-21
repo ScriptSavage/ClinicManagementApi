@@ -14,17 +14,14 @@ public class GlobalErrorHandlingMiddleware : IMiddleware
         catch (AlreadyExistsException e)
         {
             context.Response.StatusCode = StatusCodes.Status409Conflict;
-            await context.Response.WriteAsync(e.Message);
         }
         catch (ValidationException ex)
         {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            Console.WriteLine(ex.Message);
+            await context.Response.WriteAsync(ex.Message);
         }
         catch (Exception e)
         {
             context.Response.StatusCode = 500;
-            Console.WriteLine(e.Message);
         }
     }
 }
