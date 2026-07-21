@@ -8,5 +8,6 @@ public static class DoctorDto
         string Email,
         string FirstName,
         string LastName,
-        string Pwz);
+        string Pwz,
+        IEnumerable<Guid> SpecializationsIds);
 }
