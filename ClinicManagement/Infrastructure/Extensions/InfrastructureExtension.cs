@@ -2,6 +2,8 @@
 using Infrastructure.Helpers;
 using Infrastructure.Repositories.Doctor;
 using Infrastructure.Repositories.Patient;
+using Infrastructure.Repositories.Producer;
+using Infrastructure.Repositories.Specialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +24,8 @@ public static class InfrastructureExtension
 
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
+        services.AddScoped<ISpecializationRepository, SpecializationRepository>();
+        services.AddScoped<IProducerRepository, ProducerRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
