@@ -6,7 +6,6 @@ using ApplicationCore.Auth.Dto;
 using FluentValidation;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
-using Infrastructure.Repositories;
 using Infrastructure.Repositories.Patient;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -172,7 +171,7 @@ public class AuthService : IAuthService
         private static string GenerateRandomLogin()
         {
             const int loginLength = 10;
-            const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+            const string chars = "0123456789";
 
             var characters = new char[loginLength];
             var randomBuffer = new byte[loginLength];
