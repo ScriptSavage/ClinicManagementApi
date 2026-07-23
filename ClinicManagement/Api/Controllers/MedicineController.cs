@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Medicine.Dto;
 using ApplicationCore.Medicine.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -16,6 +17,7 @@ public class MedicineController : ControllerBase
     }
 
     [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateMedicine(Guid id, [FromBody] MedicineDto.Request dto)
     {
         await _medicineService.UpdateMedicineAsync(id, dto);
@@ -24,6 +26,7 @@ public class MedicineController : ControllerBase
 
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteMedicine(Guid id)
     {
         await _medicineService.DeleteMedicineAsync(id);
@@ -31,6 +34,7 @@ public class MedicineController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetMedicines([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         var data = await _medicineService.GetMedicinesAsync(pageNumber, pageSize);

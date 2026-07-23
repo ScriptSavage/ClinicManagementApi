@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Specialization.Dto;
 using ApplicationCore.Specialization.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -17,6 +18,7 @@ public class SpecializationController : ControllerBase
 
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddNewSpecialization(SpecializationDto.AddNewSpecialization specializationDto)
     {
         await _specializationService.AddNewSpecialization(specializationDto);
