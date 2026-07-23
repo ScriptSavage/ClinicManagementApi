@@ -15,6 +15,10 @@ public class GlobalErrorHandlingMiddleware : IMiddleware
         {
             context.Response.StatusCode = StatusCodes.Status409Conflict;
         }
+        catch (DoesNotExistsException e)
+        {
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+        }
         catch (ValidationException ex)
         {
             await context.Response.WriteAsync(ex.Message);
