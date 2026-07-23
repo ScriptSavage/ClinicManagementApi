@@ -1,4 +1,5 @@
-﻿using ApplicationCore.Producer.Dto;
+﻿using ApplicationCore.Exceptions;
+using ApplicationCore.Producer.Dto;
 using FluentValidation;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories.Producer;
@@ -33,6 +34,20 @@ public class ProducerService : IProducerService
             Name = dto.Name,
         };
         await _producerRepository.CreateAsync(newProducer);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task DeleteProducer(Guid id)
+    {
+        var producerToDelete = await _producerRepository.GetProducer(id);
+        
+        if (producerToDelete is null)
+        {
+            throw new DoesNotExistsException();
+        }
+        
+        _producerRepository.Delete(producerToDelete);
+        
         await _unitOfWork.SaveChangesAsync();
     }
 }
