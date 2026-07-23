@@ -1,6 +1,7 @@
 ﻿using Infrastructure.Context;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories.Doctor;
+using Infrastructure.Repositories.Medicine;
 using Infrastructure.Repositories.Patient;
 using Infrastructure.Repositories.Producer;
 using Infrastructure.Repositories.Specialization;
@@ -26,6 +27,7 @@ public static class InfrastructureExtension
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<ISpecializationRepository, SpecializationRepository>();
         services.AddScoped<IProducerRepository, ProducerRepository>();
+        services.AddScoped<IMedicineRepository, MedicineRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
