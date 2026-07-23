@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Producer;
 
@@ -10,6 +11,7 @@ public class ProducerRepository : IProducerRepository
     {
         _context = context;
     }
+    
 
     public async Task CreateAsync(Entities.Producer entity)
     {
@@ -20,4 +22,7 @@ public class ProducerRepository : IProducerRepository
     {
         _context.Producers.Remove(entity);
     }
+
+    public async Task<Entities.Producer> GetProducer(Guid id) =>
+        await _context.Producers.FirstOrDefaultAsync(e => e.ProducerId == id);
 }
