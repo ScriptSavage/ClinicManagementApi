@@ -3,10 +3,10 @@ using FluentValidation;
 
 namespace ApplicationCore.Auth.Validators;
 
-public class CreatePatientValidator : AbstractValidator<AuthDto.RegisterNewPatient>
+public class RegisterNewPatientValidator : AbstractValidator<AuthDto.RegisterNewPatient>
 {
 
-    public CreatePatientValidator()
+    public RegisterNewPatientValidator()
     {
         RuleFor(e=>e.FirstName)
             .NotEmpty().WithMessage("First name cannot be empty")
