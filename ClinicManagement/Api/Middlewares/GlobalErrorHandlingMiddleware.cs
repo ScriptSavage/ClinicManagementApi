@@ -23,6 +23,10 @@ public class GlobalErrorHandlingMiddleware : IMiddleware
         {
             await context.Response.WriteAsync(ex.Message);
         }
+        catch (UnauthorizedAccessException e)
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        }
         catch (Exception e)
         {
             context.Response.StatusCode = 500;
