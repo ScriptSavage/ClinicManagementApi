@@ -1,4 +1,6 @@
-﻿namespace ApplicationCore.Auth.Dto;
+﻿using ApplicationCore.Address.Dto;
+
+namespace ApplicationCore.Auth.Dto;
 
 public static class AuthDto
 {
@@ -10,7 +12,8 @@ public static class AuthDto
         string EmailAddress, 
         string Password,
         string ConfirmPassword,
-        string PhoneNumber);
+        string PhoneNumber,
+        AddressDto.NewAddress Address);
 
     public record LoginDto(
         string Username,
