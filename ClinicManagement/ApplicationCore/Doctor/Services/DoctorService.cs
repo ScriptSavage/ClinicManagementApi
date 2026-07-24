@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Exceptions;
+using FluentValidation;
 using Infrastructure.Repositories.Doctor;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
@@ -13,22 +14,31 @@ public class DoctorService : IDoctorService
     private readonly IDoctorRepository  _doctorRepository;
     private readonly ISpecializationRepository _specializationRepository;
     private readonly IUnitOfWork  _unitOfWork;
+    private readonly IValidator<DoctorDto.CreateDoctorDto> _createDoctorValidator;
     private readonly UserManager<ApplicationUser> _userManager;
     
 
     public DoctorService(IDoctorRepository doctorRepository,
         ISpecializationRepository specializationRepository,
         IUnitOfWork unitOfWork,
+        IValidator<DoctorDto.CreateDoctorDto> createDoctorValidator,
         UserManager<ApplicationUser> userManager)
     {
         _doctorRepository = doctorRepository;
         _specializationRepository = specializationRepository;
         _unitOfWork = unitOfWork;
+        _createDoctorValidator = createDoctorValidator;
         _userManager = userManager;
     }
 
     public async Task AddNewDoctor(DoctorDto.CreateDoctorDto dto)
     {
+        var createNewDoctorValidator = await _createDoctorValidator.ValidateAsync(dto);
+
+        if (!createNewDoctorValidator.IsValid)
+        {
+            throw new ValidationException(createNewDoctorValidator.Errors);
+        }
 
         var doesDoctorExistAsync = await _doctorRepository.DoesDoctorExistAsync(dto.Pwz);
 
