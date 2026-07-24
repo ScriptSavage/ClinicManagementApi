@@ -2,10 +2,12 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using ApplicationCore.Address.Dto;
 using ApplicationCore.Auth.Dto;
 using FluentValidation;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
+using Infrastructure.Repositories.Address;
 using Infrastructure.Repositories.Patient;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -20,21 +22,30 @@ public class AuthService : IAuthService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _configuration;
     private readonly IPatientRepository  _patientRepository;
+    private readonly IAddressRepository _addressRepository;
     private readonly IValidator<AuthDto.RegisterNewPatient> _registerNewPatientValidator;
+    private readonly IValidator<AuthDto.LoginDto> _loginValidator;
+    private readonly IValidator<AddressDto.NewAddress> _registerNewAddressValidator;
     private readonly SignInManager<ApplicationUser> _signInManager;
 
 
     public AuthService(UserManager<ApplicationUser> userManager,
         IUnitOfWork unitOfWork,
         IPatientRepository patientRepository,
+        IAddressRepository addressRepository,
         IValidator<AuthDto.RegisterNewPatient> registerNewPatientValidator,
+        IValidator<AddressDto.NewAddress> registerNewAddressValidator,
+        IValidator<AuthDto.LoginDto> loginValidator,
         IConfiguration configuration,
         SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
         _unitOfWork = unitOfWork;
         _patientRepository = patientRepository;
+        _addressRepository = addressRepository;
         _registerNewPatientValidator = registerNewPatientValidator;
+        _registerNewAddressValidator = registerNewAddressValidator;
+        _loginValidator = loginValidator;
         _configuration = configuration;
         _signInManager = signInManager;
     }
@@ -90,6 +101,21 @@ public class AuthService : IAuthService
                 UserId = newUserAccount.Id
             };
 
+            var newAddressValidationResult = await _registerNewAddressValidator
+                .ValidateAsync(request.Address);
+
+            if (!newAddressValidationResult.IsValid)
+            {
+                throw new ValidationException(newAddressValidationResult.Errors);
+            }
+
+            newPatient.Address = new Infrastructure.Entities.Address()
+            {
+                Street = request.Address.Street,
+                City = request.Address.City,
+                PostalCode = request.Address.ZipCode
+            };
+            await _addressRepository.CreateAsync(newPatient.Address);
             await _patientRepository.AddNewPatientAsync(newPatient);
             await _unitOfWork.SaveChangesAsync();
 
@@ -107,7 +133,14 @@ public class AuthService : IAuthService
 
     
     public async Task<string> GenerateAccessToken(AuthDto.LoginDto request)
-        {
+    {
+
+            var loginValidationResultAsync = await _loginValidator.ValidateAsync(request);
+
+            if (!loginValidationResultAsync.IsValid)
+            {
+                throw new ValidationException(loginValidationResultAsync.Errors);
+            }
 
             var user = await _userManager.FindByNameAsync(request.Username);
 
