@@ -2,7 +2,7 @@
 
 public static class SpecializationDto
 {
-    public record AddNewSpecialization(
+    public record NewSpecialization(
         string SpecializationName,
         string SpecializationDescription);
 }
