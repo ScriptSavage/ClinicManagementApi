@@ -16,7 +16,7 @@ public class PatientController : ControllerBase
 
 
    [HttpGet]
-   public async Task<IActionResult> GetPatientsData([FromRoute]int pageNumber = 1, [FromRoute] int pageSize = 10)
+   public async Task<IActionResult> GetPatientsData([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
    {
       var result = await _service.GetAllPatientsAsync(pageNumber, pageSize);
       return Ok(result);

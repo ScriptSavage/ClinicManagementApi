@@ -26,9 +26,9 @@ public class DoctorController : ControllerBase
 
 
     [HttpGet]
-    public async Task<IActionResult> GetDoctors([FromRoute] int page = 1, [FromRoute] int pageSize = 10)
+    public async Task<IActionResult> GetDoctors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var data = await _doctorService.GetAllDoctorsAsync(page, pageSize);
+        var data = await _doctorService.GetAllDoctorsAsync(pageNumber, pageSize);
         return Ok(data);
     }
 }
