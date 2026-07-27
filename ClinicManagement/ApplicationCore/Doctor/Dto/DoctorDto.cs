@@ -1,4 +1,6 @@
-﻿namespace ApplicationCore.Doctor.Dto;
+﻿using ApplicationCore.Specialization.Dto;
+
+namespace ApplicationCore.Doctor.Dto;
 
 public static class DoctorDto
 {
@@ -10,4 +12,12 @@ public static class DoctorDto
         string LastName,
         string Pwz,
         IEnumerable<Guid> SpecializationsIds);
+
+
+    public record Response(
+        string FirstName,
+        string LastName,
+        string Pwz,
+        IEnumerable<SpecializationDto.NewSpecialization> Specializations
+    );
 }
