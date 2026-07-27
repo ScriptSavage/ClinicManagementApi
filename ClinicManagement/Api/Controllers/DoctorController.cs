@@ -18,9 +18,17 @@ public class DoctorController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Post([FromBody] DoctorDto.CreateDoctorDto request)
+    public async Task<IActionResult> AddNewDoctor([FromBody] DoctorDto.CreateDoctorDto request)
     {
         await _doctorService.AddNewDoctor(request);
         return Ok(new { Message = "Doctor Added Successfully" });
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> GetDoctors([FromRoute] int page = 1, [FromRoute] int pageSize = 10)
+    {
+        var data = await _doctorService.GetAllDoctorsAsync(page, pageSize);
+        return Ok(data);
     }
 }
