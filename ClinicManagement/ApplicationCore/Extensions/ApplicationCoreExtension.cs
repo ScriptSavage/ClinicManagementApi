@@ -3,8 +3,11 @@ using ApplicationCore.Address.Validators;
 using ApplicationCore.Auth.Dto;
 using ApplicationCore.Auth.Services;
 using ApplicationCore.Auth.Validators;
+using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Doctor.Services;
+using ApplicationCore.Doctor.Validators;
 using ApplicationCore.Medicine.Services;
+using ApplicationCore.Patient.Service;
 using ApplicationCore.Producer.Dto;
 using ApplicationCore.Producer.Services;
 using ApplicationCore.Producer.Validators;
@@ -23,13 +26,17 @@ public static class ApplicationCoreExtension
         services.AddDataAccessLayer(configuration);
         services.ConfigureAuth(configuration);
 
+        
+        
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDoctorService, DoctorService>();
         services.AddScoped<ISpecializationService,SpecializationService>();
         services.AddScoped<IProducerService,ProducerService>();
         services.AddScoped<IMedicineService,MedicineService>();
+        services.AddScoped<IPatientService,PatientService>();
         services.AddScoped<IValidator<AuthDto.RegisterNewPatient>, RegisterNewPatientValidator>();
         services.AddScoped<IValidator<AuthDto.LoginDto>, LoginValidator>();
+        services.AddScoped<IValidator<DoctorDto.CreateDoctorDto>,CreateNewDoctorValidator>();
         services.AddScoped<IValidator<AddressDto.NewAddress>, NewAddressValidator>();
         services.AddScoped<IValidator<ProducerDto.NewProducer>, NewProducerValidator>();
     }
