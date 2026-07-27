@@ -92,7 +92,7 @@ public class AuthService : IAuthService
             await _userManager.AddToRoleAsync(newUserAccount, "Patient");
             
 
-            var newPatient = new Patient
+            var newPatient = new Infrastructure.Entities.Patient
             {
                 FirstName = request.FirstName,
                 LastName = request.LastName,

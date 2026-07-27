@@ -4,6 +4,6 @@ namespace ApplicationCore.Specialization.Services;
 
 public interface ISpecializationService
 {
-    Task AddNewSpecialization(SpecializationDto.AddNewSpecialization dto);
+    Task AddNewSpecialization(SpecializationDto.NewSpecialization dto);
     
 }

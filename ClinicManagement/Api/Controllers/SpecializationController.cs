@@ -19,7 +19,7 @@ public class SpecializationController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> AddNewSpecialization(SpecializationDto.AddNewSpecialization specializationDto)
+    public async Task<IActionResult> AddNewSpecialization(SpecializationDto.NewSpecialization specializationDto)
     {
         await _specializationService.AddNewSpecialization(specializationDto);
         return Ok(new

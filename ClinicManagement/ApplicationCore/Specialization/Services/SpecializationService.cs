@@ -16,7 +16,7 @@ public class SpecializationService : ISpecializationService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task AddNewSpecialization(SpecializationDto.AddNewSpecialization dto)
+    public async Task AddNewSpecialization(SpecializationDto.NewSpecialization dto)
     {
         var newSpecialization = new Infrastructure.Entities.Specialization
         {
