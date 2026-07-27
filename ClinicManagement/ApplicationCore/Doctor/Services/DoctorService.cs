@@ -1,5 +1,7 @@
 ﻿using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Exceptions;
+using ApplicationCore.Helpers.Pagination;
+using ApplicationCore.Specialization.Dto;
 using FluentValidation;
 using Infrastructure.Repositories.Doctor;
 using Infrastructure.Entities;
@@ -87,5 +89,35 @@ public class DoctorService : IDoctorService
             throw;
         }
         
+    }
+
+    public async Task<PageResponse<DoctorDto.Response>> GetAllDoctorsAsync(int pageNumber, int pageSize)
+    {
+
+        var doctors = (await _doctorRepository.GetAllDoctorsAsync()).AsQueryable();
+
+        var data = doctors.Select(e => new DoctorDto.Response(
+            e.FirstName,
+            e.LastName,
+            e.PWZ,
+            e.Specializations.Select(x=>new SpecializationDto.NewSpecialization(
+                x.Name,
+                x.Description))))
+            .ToList();
+
+        
+        pageNumber = Math.Max(1, pageNumber);
+        pageSize = Math.Max(1, pageSize);
+        
+        var totalRecords = doctors.Count();
+
+        return new PageResponse<DoctorDto.Response>()
+        {
+            Data = data,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalRecords = totalRecords,
+            TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize)
+        };
     }
 }
