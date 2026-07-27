@@ -22,4 +22,12 @@ public class DoctorRepository : IDoctorRepository
         return await _context.Doctors.AnyAsync(e=>e.PWZ == Pwz);
         
     }
+
+    public async Task<IEnumerable<Entities.Doctor>> GetAllDoctorsAsync()
+    {
+        return await _context.Doctors
+            .Include(e=>e.Specializations)
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }

@@ -5,4 +5,6 @@ public interface IDoctorRepository
     Task AddNewDoctorAsync(Entities.Doctor doctor);
     
     Task<bool> DoesDoctorExistAsync(string Pwz);
+    
+    Task <IEnumerable<Entities.Doctor>>  GetAllDoctorsAsync();
 }
