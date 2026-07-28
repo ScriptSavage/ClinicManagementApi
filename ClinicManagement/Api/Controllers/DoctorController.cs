@@ -10,10 +10,13 @@ namespace Api.Controllers;
 public class DoctorController : ControllerBase
 {
     private readonly IDoctorService _doctorService;
+    private readonly ILogger<DoctorController> _logger;
 
-    public DoctorController(IDoctorService doctorService)
+    public DoctorController(IDoctorService doctorService,
+        ILogger<DoctorController> logger)
     {
         _doctorService = doctorService;
+        _logger = logger;
     }
 
     [HttpPost]
@@ -29,6 +32,7 @@ public class DoctorController : ControllerBase
     public async Task<IActionResult> GetDoctors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         var data = await _doctorService.GetAllDoctorsAsync(pageNumber, pageSize);
+        _logger.LogInformation("Get all doctors");
         return Ok(data);
     }
 }

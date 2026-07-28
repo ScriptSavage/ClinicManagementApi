@@ -4,8 +4,9 @@
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "http://localhost:5229",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:5800/scalar",
+      "applicationUrl": "http://localhost:5800",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

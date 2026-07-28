@@ -2,6 +2,7 @@ using Api.Middlewares;
 using ApplicationCore.Extensions;
 using ApplicationCore.Seeders;
 using Scalar.AspNetCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,10 @@ builder.Services.AddControllers();
 builder.Services.AddBusinessLogicLayer(builder.Configuration);
 builder.Services.AddScoped<GlobalErrorHandlingMiddleware>();
 
+builder.Host.UseSerilog((context, conf) =>
+{
+    conf.ReadFrom.Configuration(context.Configuration);
+});
 
 
 var app = builder.Build();
@@ -25,6 +30,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseSerilogRequestLogging();
 
 
 app.UseAuthentication();
