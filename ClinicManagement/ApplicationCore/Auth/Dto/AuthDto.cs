@@ -19,4 +19,21 @@ public static class AuthDto
         string Username,
         string Password);
 
+
+    public record ChangePasswordDto(
+        string CurrentPassword,
+        string NewPassword,
+        string ConfirmPassword
+    );
+
+    public record DetailsDto(
+        string FirstName,
+        string LastName,
+        string Pesel,
+        DateTime DateOfBirth,
+        string EmailAddress,
+        string PhoneNumber,
+        AddressDto.NewAddress Address
+    );
+
 }
