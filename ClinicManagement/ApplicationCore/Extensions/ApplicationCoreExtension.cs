@@ -36,6 +36,7 @@ public static class ApplicationCoreExtension
         services.AddScoped<IPatientService,PatientService>();
         services.AddScoped<IValidator<AuthDto.RegisterNewPatient>, RegisterNewPatientValidator>();
         services.AddScoped<IValidator<AuthDto.LoginDto>, LoginValidator>();
+        services.AddScoped<IValidator<AuthDto.ChangePasswordDto>, ChangePasswordValidator>();
         services.AddScoped<IValidator<DoctorDto.CreateDoctorDto>,CreateNewDoctorValidator>();
         services.AddScoped<IValidator<AddressDto.NewAddress>, NewAddressValidator>();
         services.AddScoped<IValidator<ProducerDto.NewProducer>, NewProducerValidator>();
