@@ -26,6 +26,7 @@ public class AuthService : IAuthService
     private readonly IValidator<AuthDto.RegisterNewPatient> _registerNewPatientValidator;
     private readonly IValidator<AuthDto.LoginDto> _loginValidator;
     private readonly IValidator<AddressDto.NewAddress> _registerNewAddressValidator;
+    private readonly IValidator<AuthDto.ChangePasswordDto>  _changePasswordValidator;
     private readonly SignInManager<ApplicationUser> _signInManager;
 
 
@@ -36,6 +37,7 @@ public class AuthService : IAuthService
         IValidator<AuthDto.RegisterNewPatient> registerNewPatientValidator,
         IValidator<AddressDto.NewAddress> registerNewAddressValidator,
         IValidator<AuthDto.LoginDto> loginValidator,
+        IValidator<AuthDto.ChangePasswordDto> changePasswordValidator,
         IConfiguration configuration,
         SignInManager<ApplicationUser> signInManager)
     {
@@ -46,6 +48,7 @@ public class AuthService : IAuthService
         _registerNewPatientValidator = registerNewPatientValidator;
         _registerNewAddressValidator = registerNewAddressValidator;
         _loginValidator = loginValidator;
+        _changePasswordValidator = changePasswordValidator;
         _configuration = configuration;
         _signInManager = signInManager;
     }
@@ -184,8 +187,59 @@ public class AuthService : IAuthService
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     
-        private async Task<string> GenerateUniqueLoginAsync()
+    public async Task ChangePasswordAsync(string userId, AuthDto.ChangePasswordDto request)
+    {
+        var passwordValidationResult = await _changePasswordValidator.ValidateAsync(request);
+
+        if (!passwordValidationResult.IsValid)
+        {
+            throw new ValidationException(passwordValidationResult.Errors);
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            throw new ArgumentException("User or password is incorrect");
+        }
+
+        if (request.NewPassword != request.ConfirmPassword)
+        {
+            throw new ArgumentException("Passwords do not match");
+        }
+
+        await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+    }
+
+    public async Task<AuthDto.DetailsDto> GetDetailsAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            throw new ArgumentException("User or password is incorrect");
+        }
+        
+        var patient = await _patientRepository.GetPatientByUserIdAsync(user.Id);
+
+        var patientDetails = await _patientRepository.GetPatientByIdAsync(patient.PatientId);
+        
+       return new AuthDto.DetailsDto(
+           patientDetails.FirstName, 
+           patientDetails.LastName, 
+           patientDetails.Pesel,
+           patientDetails.DateOfBirth,
+           user.Email,
+           user.PhoneNumber,
+           new AddressDto.NewAddress(
+               patientDetails.Address.Street,
+               patientDetails.Address.City,
+               patientDetails.Address.PostalCode));
+    }
+
+    private async Task<string> GenerateUniqueLoginAsync()
         {
             string login;
             bool loginExists;

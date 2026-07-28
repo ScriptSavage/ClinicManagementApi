@@ -1,5 +1,8 @@
-﻿using ApplicationCore.Auth.Dto;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using ApplicationCore.Auth.Dto;
 using ApplicationCore.Auth.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -36,9 +39,37 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] AuthDto.LoginDto loginRequest)
     {
         var accessToken = await _authService.GenerateAccessToken(loginRequest);
-        var logInDate = DateTime.UtcNow;
-        _logger.LogInformation($"User Has been logged in at {logInDate}");
         return Ok(accessToken);
+    }
+
+
+
+    [Authorize]
+    [HttpPatch("changePassword")]
+    public async Task<IActionResult> ChangePassword([FromBody] AuthDto.ChangePasswordDto request)
+    {
+        var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        await _authService.ChangePasswordAsync(userId, request);
+
+        return Ok(new
+        {
+            Message = "Password has been changed successfully"
+        });
+    }
+
+
+    [HttpGet("me")]
+    public async Task<IActionResult> MyDetails()
+    {
+        var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        var userDetails = await _authService.GetDetailsAsync(userId);
+        return Ok(userDetails);
     }
 
 }
