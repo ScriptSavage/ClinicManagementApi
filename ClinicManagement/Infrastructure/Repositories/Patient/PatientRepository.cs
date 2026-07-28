@@ -24,4 +24,19 @@ public class PatientRepository : IPatientRepository
             .AsNoTracking()
             .ToListAsync();
     }
+
+    public async Task<Entities.Patient> GetPatientByIdAsync(Guid patientId)
+    {
+        return await _context.Patients
+            .Include(e => e.Address)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.PatientId == patientId);
+    }
+
+    public async Task<Entities.Patient?> GetPatientByUserIdAsync(Guid userId)
+    {
+        return await _context.Patients
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.UserId == userId);
+    }
 }
