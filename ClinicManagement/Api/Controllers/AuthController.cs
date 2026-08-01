@@ -28,6 +28,7 @@ public class AuthController : ControllerBase
     {
         var loginNumber = await _authService.RegisterNewPatient(request);
          _logger.LogInformation($"User {loginNumber} registered");
+         
         return Ok(new { 
             message = "Account created successfully",
             login = loginNumber 
