@@ -39,4 +39,17 @@ public class PatientRepository : IPatientRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.UserId == userId);
     }
+
+    public void DeletePatient(Entities.Patient patient)
+    {
+        _context.Patients.Remove(patient);
+    }
+
+    public async Task<Entities.Patient?> GetPatientVisitsByIdAsync(Guid userId)
+    {
+        return await _context.Patients
+            .Include(e => e.Visits)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.UserId == userId);
+    }
 }

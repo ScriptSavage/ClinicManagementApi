@@ -9,4 +9,8 @@ public interface IPatientRepository
     Task<Entities.Patient> GetPatientByIdAsync(Guid patientId);
     
     Task<Entities.Patient> GetPatientByUserIdAsync(Guid userId);
+    
+    void DeletePatient(Entities.Patient patient);
+    
+    Task<Entities.Patient?> GetPatientVisitsByIdAsync(Guid userId);
 }
