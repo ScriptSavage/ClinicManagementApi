@@ -17,7 +17,12 @@ public static class DoctorDto
     public record Response(
         string FirstName,
         string LastName,
-        string Pwz,
         IEnumerable<SpecializationDto.NewSpecialization> Specializations
+    );
+
+    public record UpdateDoctorDto(
+        string FirstName,
+        string LastName,
+        string Pwz
     );
 }

@@ -30,4 +30,19 @@ public class DoctorRepository : IDoctorRepository
             .AsNoTracking()
             .ToListAsync();
     }
+
+    public async Task<Entities.Doctor?> GetDoctorSpecializationsByIdAsync(Guid id)
+    {
+        return await  _context.Doctors
+            .Include(e=>e.Specializations)
+            .FirstOrDefaultAsync(e=>e.DoctorId == id);
+    }
+
+    public async Task<Entities.Doctor?> GetDoctorByIdAsync(Guid id) => await _context.Doctors
+        .FirstOrDefaultAsync(e=>e.DoctorId == id);
+
+    public void DeleteDoctor(Entities.Doctor doctor)
+    {
+        _context.Doctors.Remove(doctor);
+    }
 }

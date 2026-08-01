@@ -27,6 +27,21 @@ public class DoctorController : ControllerBase
         return Ok(new { Message = "Doctor Added Successfully" });
     }
 
+    [HttpPost("{id:guid}/specializations/{specializationId:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddNewSpecialization(Guid id, Guid specializationId)
+    {
+        await _doctorService.AddNewSpecializationToDoctor(id, specializationId);
+        return Ok(new { Message = "New Spec Added Successfully" });
+    }
+
+    [HttpDelete("{id:guid}/specializations/{specializationId:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteSpecialization(Guid id, Guid specializationId)
+    {
+        await _doctorService.DeleteDoctorSpecialization(id, specializationId);
+        return Ok(new { Message = "Doctor Spec Removed Successfully" });
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetDoctors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
@@ -35,4 +50,28 @@ public class DoctorController : ControllerBase
         _logger.LogInformation("Get all doctors");
         return Ok(data);
     }
+    
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetDoctorById(Guid id)
+    {
+        var doctor = await _doctorService.GetDoctorByIdAsync(id);
+        return Ok(doctor);
+    }
+    
+    [HttpGet("{id:guid}/specializations")]
+    public async Task<IActionResult> GetDoctorSpecializationsById(Guid id)
+    {
+        var doctorSpecializations = await _doctorService.GetDoctorSpecializationById(id);
+        return Ok(doctorSpecializations);
+    }
+
+    [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateDoctor(Guid id, [FromBody] DoctorDto.UpdateDoctorDto request)
+    {
+        await _doctorService.UpdateDoctor(id, request);
+        return Ok(new { Message = "Doctor Updated Successfully" });
+    }
+
 }

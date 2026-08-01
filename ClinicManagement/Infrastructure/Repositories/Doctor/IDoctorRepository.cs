@@ -7,4 +7,10 @@ public interface IDoctorRepository
     Task<bool> DoesDoctorExistAsync(string Pwz);
     
     Task <IEnumerable<Entities.Doctor>>  GetAllDoctorsAsync();
+    
+    Task<Entities.Doctor?> GetDoctorSpecializationsByIdAsync(Guid id);
+    
+    Task<Entities.Doctor?> GetDoctorByIdAsync(Guid id);
+    
+    void DeleteDoctor(Entities.Doctor doctor);
 }

@@ -99,7 +99,6 @@ public class DoctorService : IDoctorService
         var data = doctors.Select(e => new DoctorDto.Response(
             e.FirstName,
             e.LastName,
-            e.PWZ,
             e.Specializations.Select(x=>new SpecializationDto.NewSpecialization(
                 x.Name,
                 x.Description))))
@@ -119,5 +118,103 @@ public class DoctorService : IDoctorService
             TotalRecords = totalRecords,
             TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize)
         };
+    }
+
+    public async Task<DoctorDto.Response> GetDoctorByIdAsync(Guid id)
+    {
+        var data = await _doctorRepository.GetDoctorSpecializationsByIdAsync(id);
+        
+        var doctor = new DoctorDto.Response(
+            data.FirstName,
+            data.LastName,
+            data.Specializations.Select(e=>new SpecializationDto.NewSpecialization(
+                e.Name,
+                e.Description)));
+        
+        return doctor;
+    }
+
+    public async Task UpdateDoctor(Guid id, DoctorDto.UpdateDoctorDto dto)
+    {
+        var doctor = await _doctorRepository.GetDoctorByIdAsync(id);
+        
+        
+
+        if (doctor is null)
+        {
+            throw new DoesNotExistsException("Doctor not found");
+        }
+
+        if(!string.IsNullOrWhiteSpace(dto.FirstName)) doctor.FirstName = dto.FirstName;
+        if (!string.IsNullOrWhiteSpace(dto.LastName)) doctor.LastName = dto.LastName;
+        if (!string.IsNullOrWhiteSpace(dto.Pwz)) doctor.PWZ = dto.Pwz;
+
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task DeleteDoctor(Guid id)
+    {
+        var doctor = await _doctorRepository.GetDoctorByIdAsync(id);
+        if (doctor is null)
+        {
+            throw new DoesNotExistsException("Doctor not found");
+        }
+        
+        _doctorRepository.DeleteDoctor(doctor);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<SpecializationDto.Response>> GetDoctorSpecializationById(Guid id)
+    {
+        var doctor = await _doctorRepository.GetDoctorSpecializationsByIdAsync(id);
+
+        if (doctor is null)
+        {
+            throw new DoesNotExistsException("Doctor not found");
+        }
+
+        var result =  doctor.Specializations.Select(x => 
+            new SpecializationDto.Response(
+                x.Name, 
+                x.Description));
+
+        return result;
+    }
+
+    public async Task AddNewSpecializationToDoctor(Guid id, Guid specializationId)
+    {
+        var doctor = await _doctorRepository.GetDoctorByIdAsync(id);
+        if (doctor is null)
+        {
+            throw new DoesNotExistsException("Doctor not found");
+        }
+        
+        var specialization = await _specializationRepository.GetSpecialization(specializationId);
+
+        if (specialization is null)
+        {
+            throw new DoesNotExistsException("Specialization not found");
+        }
+        
+        doctor.Specializations.Add(specialization);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task DeleteDoctorSpecialization(Guid id, Guid specializationId)
+    {
+        var doctor = await _doctorRepository.GetDoctorByIdAsync(id);
+        if (doctor is null)
+        {
+            throw new DoesNotExistsException("Doctor not found");
+        }
+        
+        var specialization = await _specializationRepository.GetSpecialization(specializationId);
+        if (specialization is null)
+        {
+            throw new DoesNotExistsException("Specialization not found");
+        }
+        
+        doctor.Specializations.Remove(specialization);
+        await _unitOfWork.SaveChangesAsync();
     }
 }
