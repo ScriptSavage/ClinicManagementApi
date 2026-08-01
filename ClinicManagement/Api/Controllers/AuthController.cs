@@ -64,6 +64,7 @@ public class AuthController : ControllerBase
     }
 
 
+    [Authorize(Roles = "Patient")]
     [HttpGet("me")]
     public async Task<IActionResult> MyDetails()
     {
