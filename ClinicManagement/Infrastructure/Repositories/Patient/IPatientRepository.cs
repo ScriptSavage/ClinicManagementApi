@@ -13,4 +13,6 @@ public interface IPatientRepository
     void DeletePatient(Entities.Patient patient);
     
     Task<Entities.Patient?> GetPatientVisitsByIdAsync(Guid userId);
+    
+    Task<IEnumerable<Entities.Patient>> GetPatientPrescriptionsAsync(Guid patientId);
 }

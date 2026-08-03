@@ -1,4 +1,7 @@
 using ApplicationCore.Address.Dto;
+using ApplicationCore.Doctor.Dto;
+using ApplicationCore.Medicine.Dto;
+using ApplicationCore.Prescription.Dto;
 using ApplicationCore.Visit.Dto;
 
 namespace ApplicationCore.Patient.Dto;
@@ -23,5 +26,11 @@ public static class PatientDto
         string FirstName,
         string LastName,
         IEnumerable<VisitDto.Response> Visits
+    );
+
+    public record PatientPrescriptions(
+        DoctorDto.UpdateDoctorDto Doctor,
+        PrescriptionDto.Response Prescription,
+        IEnumerable<MedicineDto.Response> Medicines
     );
 }

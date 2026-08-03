@@ -33,4 +33,13 @@ public class MedicineRepository : IMedicineRepository
            .Include(e=>e.Producer)
            .ToListAsync();
     }
+
+    public async Task<IEnumerable<Entities.Medicine>> GetMedicinesByPrescriptionIdAsync(Guid prescriptionId)
+    {
+        return await _context.Medicines
+            .Include(e => e.MedicinePrescriptions)
+            .AsNoTracking()
+            .ToListAsync();
+
+    }
 }

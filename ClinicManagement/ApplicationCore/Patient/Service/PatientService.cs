@@ -1,22 +1,43 @@
 using ApplicationCore.Address.Dto;
+using ApplicationCore.Doctor.Dto;
+using ApplicationCore.Exceptions;
 using ApplicationCore.Helpers.Pagination;
+using ApplicationCore.Medicine.Dto;
 using ApplicationCore.Patient.Dto;
+using ApplicationCore.Prescription.Dto;
 using ApplicationCore.Visit.Dto;
+using Infrastructure.Entities;
 using Infrastructure.Helpers;
+using Infrastructure.Repositories.Doctor;
+using Infrastructure.Repositories.Medicine;
 using Infrastructure.Repositories.Patient;
+using Infrastructure.Repositories.Prescription;
+using Microsoft.AspNetCore.Identity;
 
 namespace ApplicationCore.Patient.Service;
 
 public class PatientService : IPatientService
 {
     private readonly IPatientRepository _patientRepository;
+    private readonly IPrescriptionRepository _prescriptionRepository;
+    private readonly IDoctorRepository _doctorRepository;
+    private readonly IMedicineRepository _medicineRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public PatientService(IPatientRepository patientRepository,
-        IUnitOfWork unitOfWork)
+        IPrescriptionRepository prescriptionRepository,
+        IDoctorRepository doctorRepository,
+        IMedicineRepository medicineRepository,
+        IUnitOfWork unitOfWork,
+        UserManager<ApplicationUser> userManager)
     {
         _patientRepository = patientRepository;
+        _prescriptionRepository = prescriptionRepository;
+        _doctorRepository = doctorRepository;
+        _medicineRepository = medicineRepository;
         _unitOfWork = unitOfWork;
+        _userManager = userManager;
     }
 
     public async Task<PageResponse<PatientDto.PatientResponse>> GetAllPatientsAsync(int pageNumber, int pageSize)
@@ -122,5 +143,48 @@ public class PatientService : IPatientService
             );
         
         return data;
+    }
+
+    public async Task<IEnumerable<PatientDto.PatientPrescriptions>> GetPatientPrescriptionsAsync(string patientId)
+    {
+        var user = await _userManager.FindByIdAsync(patientId);
+        if (user is null)
+        {
+            throw new DoesNotExistsException("User not found");
+        }
+
+        var patient = await _patientRepository.GetPatientByUserIdAsync(user.Id);
+
+        if (patient is null)
+        {
+            throw new DoesNotExistsException("Patient not found");
+        }
+
+        
+        
+        var prescription = await _prescriptionRepository.GetPrescriptionByPatientIdAsync(patient.PatientId);
+
+        var doctor = await _doctorRepository.GetDoctorByIdAsync(prescription.DoctorId);
+
+        var data = await _patientRepository.GetPatientPrescriptionsAsync(patient.PatientId);
+        
+        var medicines = await _medicineRepository.GetMedicinesByPrescriptionIdAsync(prescription.PrescriptionId);
+
+        var medDto = medicines.Select(m => new MedicineDto.Response(
+            m.Name,
+            m.ActiveSubstance,
+            m.PharmaceuticalForm))
+            .ToList();
+
+        
+        return data.Select(e => new PatientDto.PatientPrescriptions(
+            new DoctorDto.UpdateDoctorDto(
+                doctor.FirstName,
+                doctor.LastName,
+                doctor.PWZ),
+            new PrescriptionDto.Response(
+                prescription.CreatedAt,
+                prescription.Code),
+            medDto)).ToList();
     }
 }

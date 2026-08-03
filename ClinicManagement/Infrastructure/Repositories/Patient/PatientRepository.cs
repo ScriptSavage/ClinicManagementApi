@@ -52,4 +52,15 @@ public class PatientRepository : IPatientRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.UserId == userId);
     }
+
+    public async Task<IEnumerable<Entities.Patient?>> GetPatientPrescriptionsAsync(Guid patientId)
+    {
+        return await _context.Patients
+            .Include(e => e.Prescriptions)
+            .ThenInclude(e => e.MedicinePrescriptions)
+            .ThenInclude(e => e.Medicine)
+            .AsNoTracking()
+            .Where(e => e.PatientId == patientId)
+            .ToListAsync();
+    }
 }

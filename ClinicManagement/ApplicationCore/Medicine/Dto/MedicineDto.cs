@@ -7,4 +7,9 @@ public static class MedicineDto
         string ActiveSubstance,
         string PharmaceuticalForm
     );
+
+    public record Response(
+        string Name,
+        string ActiveSubstance,
+        string PharmaceuticalForm);
 }

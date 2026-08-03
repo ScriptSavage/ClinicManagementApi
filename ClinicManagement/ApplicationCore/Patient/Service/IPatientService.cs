@@ -14,4 +14,6 @@ public interface IPatientService
     Task DeletePatientAsync(Guid patientId);
     
     Task<PatientDto.PatientVisitsResponse> GetPatientVisitsAsync(string patientId);
+    
+    Task<IEnumerable<PatientDto.PatientPrescriptions>> GetPatientPrescriptionsAsync(string patientId);
 }

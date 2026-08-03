@@ -40,6 +40,24 @@ public class PatientController : ControllerBase
       var patientVisitsAsync = await _patientService.GetPatientVisitsAsync(patient);
       return Ok(patientVisitsAsync);
    }
+   
+
+
+
+   [HttpGet("me/prescriptions")]
+   [Authorize(Roles = "Patient")]
+   public async Task<IActionResult> GetMyPrescriptions()
+   {
+      var patient = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+      if (string.IsNullOrWhiteSpace(patient))
+      {
+         return Unauthorized();
+      }
+      
+      var patientPrescriptions = await _patientService.GetPatientPrescriptionsAsync(patient);
+      
+      return Ok(patientPrescriptions);
+   }
 
 
    [Authorize(Roles = "Admin")]
