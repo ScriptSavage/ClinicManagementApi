@@ -8,6 +8,7 @@ using ApplicationCore.Prescription.Dto;
 using ApplicationCore.Visit.Dto;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
+using Infrastructure.Repositories.Address;
 using Infrastructure.Repositories.Doctor;
 using Infrastructure.Repositories.Medicine;
 using Infrastructure.Repositories.Patient;
@@ -22,6 +23,7 @@ public class PatientService : IPatientService
     private readonly IPrescriptionRepository _prescriptionRepository;
     private readonly IDoctorRepository _doctorRepository;
     private readonly IMedicineRepository _medicineRepository;
+    private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly UserManager<ApplicationUser> _userManager;
 
@@ -29,6 +31,7 @@ public class PatientService : IPatientService
         IPrescriptionRepository prescriptionRepository,
         IDoctorRepository doctorRepository,
         IMedicineRepository medicineRepository,
+        IAddressRepository addressRepository,
         IUnitOfWork unitOfWork,
         UserManager<ApplicationUser> userManager)
     {
@@ -36,6 +39,7 @@ public class PatientService : IPatientService
         _prescriptionRepository = prescriptionRepository;
         _doctorRepository = doctorRepository;
         _medicineRepository = medicineRepository;
+        _addressRepository = addressRepository;
         _unitOfWork = unitOfWork;
         _userManager = userManager;
     }
@@ -186,5 +190,28 @@ public class PatientService : IPatientService
                 prescription.CreatedAt,
                 prescription.Code),
             medDto)).ToList();
+    }
+
+    public async Task<AddressDto.NewAddress> GetPatientAddressAsync(Guid patientId)
+    {
+        var patient = await _patientRepository.GetPatientByIdAsync(patientId);
+
+        if (patient is null)
+        {
+            throw new DoesNotExistsException("Patient not found");
+        }
+        
+        var patientAddress = await _addressRepository.GetAddressByPatientId(patient.PatientId);
+        
+        if (patientAddress is null)
+        {
+            throw new DoesNotExistsException("Address not found");
+        }
+
+        return new AddressDto.NewAddress(
+            patientAddress.Street,
+            patientAddress.City,
+            patientAddress.PostalCode);
+        
     }
 }

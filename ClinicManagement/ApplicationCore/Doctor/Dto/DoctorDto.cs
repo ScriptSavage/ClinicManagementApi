@@ -25,4 +25,9 @@ public static class DoctorDto
         string LastName,
         string Pwz
     );
+
+    public record DoctorDetails(
+        string FirstName,
+        string LastName
+    );
 }

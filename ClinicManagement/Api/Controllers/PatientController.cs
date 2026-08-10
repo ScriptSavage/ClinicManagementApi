@@ -20,11 +20,22 @@ public class PatientController : ControllerBase
 
    
    [HttpGet]
+   [Authorize(Roles = "Admin")]
    public async Task<IActionResult> GetPatients([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
    {
       var result = await _patientService.GetAllPatientsAsync(pageNumber, pageSize);
       return Ok(result);
    }
+
+   [HttpGet("{patientId:guid}/address")]
+   [Authorize(Roles = "Admin")]
+   public async Task<IActionResult> GetPatientAddress(Guid patientId)
+   {
+      var patientAddressAsync = await _patientService.GetPatientAddressAsync(patientId);
+      return Ok(patientAddressAsync);
+   }
+
+
 
    [HttpGet("me/visits")]
    [Authorize(Roles = "Patient")]

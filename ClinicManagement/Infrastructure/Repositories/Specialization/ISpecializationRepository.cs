@@ -5,4 +5,7 @@ public interface ISpecializationRepository : IRepository<Entities.Specialization
     Task<IEnumerable<Entities.Specialization>> GetSpecializations(IEnumerable<Guid> ids);
     
     Task<Entities.Specialization> GetSpecialization(Guid id);
+    
+    Task<IEnumerable<Entities.Specialization>> GetSpecializations();
+    
 }

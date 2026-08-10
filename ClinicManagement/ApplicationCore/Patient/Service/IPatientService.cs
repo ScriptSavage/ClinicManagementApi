@@ -1,3 +1,4 @@
+using ApplicationCore.Address.Dto;
 using ApplicationCore.Helpers.Pagination;
 using ApplicationCore.Patient.Dto;
 
@@ -16,4 +17,6 @@ public interface IPatientService
     Task<PatientDto.PatientVisitsResponse> GetPatientVisitsAsync(string patientId);
     
     Task<IEnumerable<PatientDto.PatientPrescriptions>> GetPatientPrescriptionsAsync(string patientId);
+    
+    Task<AddressDto.NewAddress> GetPatientAddressAsync(Guid patientId);
 }

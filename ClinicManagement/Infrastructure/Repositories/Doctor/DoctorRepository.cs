@@ -45,5 +45,12 @@ public class DoctorRepository : IDoctorRepository
     {
         _context.Doctors.Remove(doctor);
     }
-    
+
+    public async Task<IEnumerable<Entities.Doctor>> GetDoctorsBySpecialization(Entities.Specialization specialization)
+    {
+        return await _context.Doctors
+            .Include(e => e.Specializations)
+            .Where(e => e.Specializations.Contains(specialization))
+            .ToListAsync();
+    }
 }

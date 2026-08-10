@@ -29,4 +29,7 @@ public class SpecializationRepository : ISpecializationRepository
 
     public async Task<Entities.Specialization> GetSpecialization(Guid id) => await _context.Specializations
         .FirstOrDefaultAsync(e => e.SpecializationId == id);
+
+    public async Task<IEnumerable<Entities.Specialization>> GetSpecializations() => await _context.
+        Specializations.ToListAsync();
 }

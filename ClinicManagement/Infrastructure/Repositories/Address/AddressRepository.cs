@@ -1,4 +1,5 @@
 using Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Address;
 
@@ -19,5 +20,11 @@ public class AddressRepository : IAddressRepository
     public void Delete(Entities.Address entity)
     {
         _context.Addresses.Remove(entity);
+    }
+
+    public async Task<Entities.Address?> GetAddressByPatientId(Guid patientId)
+    {
+        return await _context.Addresses
+            .FirstOrDefaultAsync(a => a.PatientId == patientId);
     }
 }
