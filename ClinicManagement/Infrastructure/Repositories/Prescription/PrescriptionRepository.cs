@@ -13,9 +13,13 @@ public class PrescriptionRepository :  IPrescriptionRepository
     }
 
 
-    public async Task<Entities.Prescription?> GetPrescriptionByPatientIdAsync(Guid patientId)
+    public async Task<IEnumerable<Entities.Prescription>> GetPrescriptionByPatientIdAsync(Guid patientId)
     {
         return await _context.Prescriptions
-            .FirstOrDefaultAsync(p => p.PatientId == patientId);
+            .Include(e=>e.Doctor)
+            .Include(t=>t.MedicinePrescriptions)
+            .ThenInclude(p=>p.Medicine)
+            .Where(e => e.PatientId == patientId)
+            .ToListAsync();
     }
 }

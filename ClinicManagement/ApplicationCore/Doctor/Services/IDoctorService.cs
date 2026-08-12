@@ -21,4 +21,6 @@ public interface IDoctorService
     Task AddNewSpecializationToDoctor(Guid id, Guid specializationId);
     
     Task DeleteDoctorSpecialization(Guid id, Guid specializationId);
+    
+    Task<DoctorDto.MyDetails> GetMyDetails(string userId);
 }

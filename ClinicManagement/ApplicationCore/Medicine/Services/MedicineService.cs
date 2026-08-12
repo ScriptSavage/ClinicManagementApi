@@ -83,4 +83,19 @@ public class MedicineService : IMedicineService
             TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize)
         };
     }
+
+    public async Task<MedicineDto.Response> GetMedicineAsync(Guid medicineId)
+    {
+        var medicine = await _medicineRepository.GetMedicineAsync(medicineId);
+
+        if (medicine is null)
+        {
+            throw new DoesNotExistsException("Medicine not found");
+        }
+        
+        return new MedicineDto.Response(
+            medicine.Name,
+            medicine.ActiveSubstance,
+            medicine.PharmaceuticalForm);
+    }
 }

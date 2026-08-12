@@ -15,4 +15,6 @@ public interface IDoctorRepository
     void DeleteDoctor(Entities.Doctor doctor);
     
     Task<IEnumerable<Entities.Doctor>> GetDoctorsBySpecialization(Entities.Specialization specialization);
+    
+    Task<Entities.Doctor?> FindDoctorByUserIdAsync(Guid userId);
 }

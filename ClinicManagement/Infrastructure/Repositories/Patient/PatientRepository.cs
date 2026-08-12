@@ -25,18 +25,16 @@ public class PatientRepository : IPatientRepository
             .ToListAsync();
     }
 
-    public async Task<Entities.Patient> GetPatientByIdAsync(Guid patientId)
+    public async Task<Entities.Patient?> GetPatientByIdAsync(Guid patientId)
     {
         return await _context.Patients
             .Include(e => e.Address)
-            .AsNoTracking()
             .FirstOrDefaultAsync(e => e.PatientId == patientId);
     }
 
     public async Task<Entities.Patient?> GetPatientByUserIdAsync(Guid userId)
     {
         return await _context.Patients
-            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.UserId == userId);
     }
 
@@ -62,5 +60,10 @@ public class PatientRepository : IPatientRepository
             .AsNoTracking()
             .Where(e => e.PatientId == patientId)
             .ToListAsync();
+    }
+
+    public async Task<Entities.Address> GetPatientAddressAsync(Guid patientId)
+    {
+        return await _context.Addresses.FirstOrDefaultAsync(e => e.PatientId == patientId);
     }
 }

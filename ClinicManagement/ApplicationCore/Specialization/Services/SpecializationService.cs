@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.Doctor.Dto;
+using ApplicationCore.Exceptions;
 using ApplicationCore.Helpers.Pagination;
 using ApplicationCore.Specialization.Dto;
 using Infrastructure.Helpers;
@@ -113,5 +114,18 @@ public class SpecializationService : ISpecializationService
         };
         
         
+    }
+
+    public async Task DeleteSpecialization(Guid specializationId)
+    {
+        var specialization = await _specializationRepository.GetSpecialization(specializationId);
+
+        if (specialization is null)
+        {
+            throw new DoesNotExistsException("Specialization not found");
+        }
+        
+        _specializationRepository.Delete(specialization);
+        await _unitOfWork.SaveChangesAsync();
     }
 }

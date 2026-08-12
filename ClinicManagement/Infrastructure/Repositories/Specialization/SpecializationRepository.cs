@@ -32,4 +32,11 @@ public class SpecializationRepository : ISpecializationRepository
 
     public async Task<IEnumerable<Entities.Specialization>> GetSpecializations() => await _context.
         Specializations.ToListAsync();
+
+    public IEnumerable<Entities.Specialization> GetSpecializationsByDoctorId(Guid doctorId)
+    {
+        return _context.Specializations
+            .Include(e => e.Doctors)
+            .Where(x => x.Doctors.Any(d => d.DoctorId == doctorId));
+    }
 }

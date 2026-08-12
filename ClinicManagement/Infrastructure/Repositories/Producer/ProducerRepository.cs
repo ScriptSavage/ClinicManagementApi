@@ -25,4 +25,11 @@ public class ProducerRepository : IProducerRepository
 
     public async Task<Entities.Producer> GetProducer(Guid id) =>
         await _context.Producers.FirstOrDefaultAsync(e => e.ProducerId == id);
+
+    public async Task<IEnumerable<Entities.Producer>> GetProducersAsync()
+    {
+        return await _context.Producers
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }

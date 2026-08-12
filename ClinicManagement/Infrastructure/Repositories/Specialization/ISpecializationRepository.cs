@@ -8,4 +8,6 @@ public interface ISpecializationRepository : IRepository<Entities.Specialization
     
     Task<IEnumerable<Entities.Specialization>> GetSpecializations();
     
+    IEnumerable<Entities.Specialization> GetSpecializationsByDoctorId(Guid doctorId);
+    
 }

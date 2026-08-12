@@ -53,4 +53,9 @@ public class DoctorRepository : IDoctorRepository
             .Where(e => e.Specializations.Contains(specialization))
             .ToListAsync();
     }
+
+    public async Task<Entities.Doctor?> FindDoctorByUserIdAsync(Guid userId)
+    {
+        return _context.Doctors.FirstOrDefault(e=>e.UserId == userId);
+    }
 }

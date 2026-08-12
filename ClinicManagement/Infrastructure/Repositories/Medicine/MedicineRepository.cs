@@ -42,4 +42,14 @@ public class MedicineRepository : IMedicineRepository
             .ToListAsync();
 
     }
+    
+    public async Task<IEnumerable<Entities.Medicine>> GetMedicinesByProducerIdAsync(Guid producerId)
+    {
+        return await _context.Medicines
+            .Include(e => e.Producer)
+            .AsNoTracking()
+            .OrderBy(t=>t.Name)
+            .Where(e=>e.ProducerId==producerId)
+            .ToListAsync();
+    }
 }

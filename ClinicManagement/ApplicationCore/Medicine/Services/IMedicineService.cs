@@ -12,4 +12,6 @@ public interface IMedicineService
     Task UpdateMedicineAsync(Guid id, MedicineDto.Request dto);
     
     Task<PageResponse<MedicineDto.Request>>  GetMedicinesAsync(int pageNumber = 1, int pageSize = 10);
+    
+    Task<MedicineDto.Response> GetMedicineAsync(Guid medicineId);
 }

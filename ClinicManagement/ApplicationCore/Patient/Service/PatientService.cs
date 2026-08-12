@@ -97,14 +97,20 @@ public class PatientService : IPatientService
         return result;
     }
 
-    public async Task UpdatePatientAsync(Guid id, PatientDto.UpdatePatientRequest request)
+    public async Task UpdatePatientAsync(Guid patientId, PatientDto.UpdatePatientRequest request)
     {
-        var patient = await _patientRepository.GetPatientByIdAsync(id);
+        var patient = await _patientRepository.GetPatientByIdAsync(patientId);
+        
         if (patient is null)
         {
-            throw new Exception("Patient not found");
+            throw new DoesNotExistsException("Patient not found");
         }
-        
+
+        if (patient.Address is null)
+        {
+            throw new DoesNotExistsException("Patient address not found");
+        }
+
         if (!string.IsNullOrWhiteSpace(request.FirstName)) patient.FirstName = request.FirstName;
         if (!string.IsNullOrWhiteSpace(request.LastName)) patient.LastName = request.LastName;
         if(!string.IsNullOrWhiteSpace(request.Address.Street)) patient.Address.Street = request.Address.Street;
@@ -163,36 +169,26 @@ public class PatientService : IPatientService
         {
             throw new DoesNotExistsException("Patient not found");
         }
-
         
-        
-        var prescription = await _prescriptionRepository.GetPrescriptionByPatientIdAsync(patient.PatientId);
+        var patientPrescriptions = await _prescriptionRepository
+            .GetPrescriptionByPatientIdAsync(patient.PatientId);
 
-        var doctor = await _doctorRepository.GetDoctorByIdAsync(prescription.DoctorId);
-
-        var data = await _patientRepository.GetPatientPrescriptionsAsync(patient.PatientId);
-        
-        var medicines = await _medicineRepository.GetMedicinesByPrescriptionIdAsync(prescription.PrescriptionId);
-
-        var medDto = medicines.Select(m => new MedicineDto.Response(
-            m.Name,
-            m.ActiveSubstance,
-            m.PharmaceuticalForm))
-            .ToList();
-
-        
-        return data.Select(e => new PatientDto.PatientPrescriptions(
-            new DoctorDto.UpdateDoctorDto(
-                doctor.FirstName,
-                doctor.LastName,
-                doctor.PWZ),
-            new PrescriptionDto.Response(
-                prescription.CreatedAt,
-                prescription.Code),
-            medDto)).ToList();
+        return patientPrescriptions.Select(e => new PatientDto.PatientPrescriptions(
+            new DoctorDto.UpdateDoctorDto(e.Doctor.FirstName, 
+                e.Doctor.LastName,
+                e.Doctor.PWZ),
+            new PrescriptionDto.Response(e.CreatedAt,
+                e.Code),
+            e.MedicinePrescriptions.Select(p=> new MedicineDto.Details(
+                p.Medicine.Name,
+                p.Medicine.ActiveSubstance,
+                p.Medicine.PharmaceuticalForm,
+                p.Dosage,
+                p.Frequency,
+                p.Instructions))));
     }
 
-    public async Task<AddressDto.NewAddress> GetPatientAddressAsync(Guid patientId)
+    public async Task<AddressDto.NewAddress> GetPatientAddresAsync(Guid patientId)
     {
         var patient = await _patientRepository.GetPatientByIdAsync(patientId);
 
@@ -213,5 +209,32 @@ public class PatientService : IPatientService
             patientAddress.City,
             patientAddress.PostalCode);
         
+    }
+
+    public async Task UpdateMyData(string userId, PatientDto.UpdatePatientRequest request)
+    {
+       var user = await _userManager.FindByIdAsync(userId);
+
+       if (user is null)
+       {
+           throw new DoesNotExistsException("User not found");
+       }
+
+       var patient = await _patientRepository.GetPatientByUserIdAsync(user.Id);
+
+       if (patient is null)
+       {
+           throw new DoesNotExistsException("Patient not found");
+       }
+
+       var address = await _patientRepository.GetPatientAddressAsync(patient.PatientId);
+       
+       if (!string.IsNullOrWhiteSpace(request.FirstName)) patient.FirstName = request.FirstName;
+       if (!string.IsNullOrWhiteSpace(request.LastName)) patient.LastName = request.LastName;
+       if(!string.IsNullOrWhiteSpace(request.Address.Street)) address.Street = request.Address.Street;
+       if(!string.IsNullOrWhiteSpace(request.Address.City)) address.City = request.Address.City;
+       if(!string.IsNullOrWhiteSpace(request.Address.ZipCode)) address.PostalCode = request.Address.ZipCode;
+
+       await _unitOfWork.SaveChangesAsync();
     }
 }

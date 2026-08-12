@@ -1,7 +1,9 @@
-﻿using ApplicationCore.Doctor.Dto;
+﻿using System.Security.Claims;
+using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Doctor.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Api.Controllers;
 
@@ -50,7 +52,22 @@ public class DoctorController : ControllerBase
         _logger.LogInformation("Get all doctors");
         return Ok(data);
     }
-    
+
+    [HttpGet("me")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> GetMyDetails()
+    {
+        var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var doctorDetails = await _doctorService.GetMyDetails(userId);
+        return Ok(doctorDetails);
+    }
+
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetDoctorById(Guid id)

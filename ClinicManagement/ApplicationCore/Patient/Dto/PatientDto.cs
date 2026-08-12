@@ -31,6 +31,6 @@ public static class PatientDto
     public record PatientPrescriptions(
         DoctorDto.UpdateDoctorDto Doctor,
         PrescriptionDto.Response Prescription,
-        IEnumerable<MedicineDto.Response> Medicines
+        IEnumerable<MedicineDto.Details> Medicines
     );
 }

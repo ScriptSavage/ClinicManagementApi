@@ -17,4 +17,6 @@ public interface ISpecializationService
     Task<PageResponse<DoctorDto.DoctorDetails>> GetDoctorsDetailsBySpecialization(Guid specializationId, int pageNumber,
         int pageSize); 
     
+    Task DeleteSpecialization(Guid specializationId);
+    
 }

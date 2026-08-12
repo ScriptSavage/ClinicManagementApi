@@ -10,7 +10,7 @@ public interface IPatientService
     
     Task<PatientDto.PatientResponse> GetPatientByIdAsync(Guid id);
     
-    Task UpdatePatientAsync(Guid id, PatientDto.UpdatePatientRequest request);
+    Task UpdatePatientAsync(Guid patientId, PatientDto.UpdatePatientRequest request);
     
     Task DeletePatientAsync(Guid patientId);
     
@@ -18,5 +18,7 @@ public interface IPatientService
     
     Task<IEnumerable<PatientDto.PatientPrescriptions>> GetPatientPrescriptionsAsync(string patientId);
     
-    Task<AddressDto.NewAddress> GetPatientAddressAsync(Guid patientId);
+    Task<AddressDto.NewAddress> GetPatientAddresAsync(Guid patientId);
+    
+    Task UpdateMyData(string userId, PatientDto.UpdatePatientRequest request);
 }

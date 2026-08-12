@@ -217,4 +217,25 @@ public class DoctorService : IDoctorService
         doctor.Specializations.Remove(specialization);
         await _unitOfWork.SaveChangesAsync();
     }
+
+    public async Task<DoctorDto.MyDetails> GetMyDetails(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            throw new DoesNotExistsException("User not found");
+        }
+
+        var doctor = await _doctorRepository.FindDoctorByUserIdAsync(user.Id);
+
+        var doctorSpecializations =  _specializationRepository.GetSpecializationsByDoctorId(doctor.DoctorId);
+        
+        return new DoctorDto.MyDetails(doctor.FirstName, 
+            doctor.LastName, 
+            doctor.PWZ,
+            doctorSpecializations.Select(e=>new SpecializationDto.NewSpecialization(e.Name,
+                e.Description))
+            );
+    }
 }

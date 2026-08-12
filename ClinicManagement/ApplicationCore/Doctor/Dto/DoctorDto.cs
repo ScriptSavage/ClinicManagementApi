@@ -30,4 +30,10 @@ public static class DoctorDto
         string FirstName,
         string LastName
     );
+    
+    public record MyDetails(
+        string FirstName,
+        string LastName,
+        string Pwz,
+        IEnumerable<SpecializationDto.NewSpecialization> Specializations): Response(FirstName, LastName, Specializations);
 }

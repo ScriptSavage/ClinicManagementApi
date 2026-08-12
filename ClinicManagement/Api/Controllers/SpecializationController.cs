@@ -18,7 +18,6 @@ public class SpecializationController : ControllerBase
 
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetSpecializations([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         var specializations = await _specializationService
@@ -28,7 +27,6 @@ public class SpecializationController : ControllerBase
     }
 
     [HttpGet("{specializationId:guid}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetSpecialization(Guid specializationId)
     {
         var specialization = await _specializationService.GetSpecialization(specializationId);
@@ -68,8 +66,16 @@ public class SpecializationController : ControllerBase
             Message = "Specialization added successfully",
         });
     }
-    
-    
-    
-    
+
+
+    [HttpDelete("{specializationId:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteSpecialization(Guid specializationId)
+    {
+        await _specializationService.DeleteSpecialization(specializationId);
+        return StatusCode(StatusCodes.Status204NoContent);
+    }
+
+
+
 }

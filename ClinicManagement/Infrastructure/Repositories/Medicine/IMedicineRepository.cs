@@ -7,4 +7,6 @@ public interface IMedicineRepository : IRepository<Entities.Medicine>
     Task<IEnumerable<Entities.Medicine>> GetMedicinesAsync();
     
     Task<IEnumerable<Entities.Medicine>> GetMedicinesByPrescriptionIdAsync(Guid prescriptionId);
+    
+    Task<IEnumerable<Entities.Medicine>> GetMedicinesByProducerIdAsync(Guid producerId);
 }

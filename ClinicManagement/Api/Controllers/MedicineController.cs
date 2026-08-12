@@ -35,10 +35,20 @@ public class MedicineController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetMedicines([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         var data = await _medicineService.GetMedicinesAsync(pageNumber, pageSize);
         return Ok(data);
+    }
+
+    [HttpGet("{medicineId:guid}")]
+    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> GetMedicine(Guid medicineId)
+    {
+        var medicine = await _medicineService.GetMedicineAsync(medicineId);
+        return Ok(medicine);
     }
 
 }

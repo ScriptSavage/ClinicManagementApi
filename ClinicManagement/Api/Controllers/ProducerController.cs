@@ -21,6 +21,33 @@ public class ProducerController : ControllerBase
         _medicineService = medicineService;
     }
 
+
+    [HttpGet]
+    public async Task<IActionResult> GetProducers()
+    {
+        var producers = await _producerService.GetProducersAsync();
+        
+        return Ok(producers);
+    }
+
+    [HttpGet("{producerId:guid}")]
+    public async Task<IActionResult> GetProducer(Guid producerId)
+    {
+        var producer = await _producerService.GeProducer(producerId);
+        
+        return Ok(producer);
+    }
+
+    [HttpGet("{producerId:guid}/medicines")]
+    public async Task<IActionResult> GetMedicinesByProducerId(Guid producerId)
+    {
+        var medicines = await _producerService
+            .GetMedicinesByProducerIdAsync(producerId);
+        
+        return Ok(medicines);
+    }
+
+
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddNewProducer([FromBody] ProducerDto.NewProducer producerDto)
@@ -50,5 +77,8 @@ public class ProducerController : ControllerBase
             Message = "Medicine added"
         });
     }
+    
+    
+    
 
 }

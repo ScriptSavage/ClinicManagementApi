@@ -6,7 +6,7 @@ public interface IPatientRepository
 
     Task<IEnumerable<Entities.Patient>> GetAllPatientsAsync();
     
-    Task<Entities.Patient> GetPatientByIdAsync(Guid patientId);
+    Task<Entities.Patient?> GetPatientByIdAsync(Guid patientId);
     
     Task<Entities.Patient> GetPatientByUserIdAsync(Guid userId);
     
@@ -15,4 +15,6 @@ public interface IPatientRepository
     Task<Entities.Patient?> GetPatientVisitsByIdAsync(Guid userId);
     
     Task<IEnumerable<Entities.Patient>> GetPatientPrescriptionsAsync(Guid patientId);
+    
+    Task<Entities.Address> GetPatientAddressAsync(Guid patientId);
 }

@@ -31,7 +31,7 @@ public class PatientController : ControllerBase
    [Authorize(Roles = "Admin")]
    public async Task<IActionResult> GetPatientAddress(Guid patientId)
    {
-      var patientAddressAsync = await _patientService.GetPatientAddressAsync(patientId);
+      var patientAddressAsync = await _patientService.GetPatientAddresAsync(patientId);
       return Ok(patientAddressAsync);
    }
 
@@ -41,14 +41,14 @@ public class PatientController : ControllerBase
    [Authorize(Roles = "Patient")]
    public async Task<IActionResult> GetMyVisits()
    {
-      var patient = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+      var user = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-      if (string.IsNullOrWhiteSpace(patient))
+      if (string.IsNullOrWhiteSpace(user))
       {
          return Unauthorized();
       }
 
-      var patientVisitsAsync = await _patientService.GetPatientVisitsAsync(patient);
+      var patientVisitsAsync = await _patientService.GetPatientVisitsAsync(user);
       return Ok(patientVisitsAsync);
    }
    
@@ -101,6 +101,28 @@ public class PatientController : ControllerBase
          {
             Message = "Patient deleted successfully"
          });
+   }
+
+
+   [HttpPatch("me")]
+   [Authorize(Roles = "Patient")]
+   public async Task<IActionResult> UpdateMyData([FromBody] PatientDto.UpdatePatientRequest request)
+   {
+
+      var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+      if (userId is null)
+      {
+         return  Unauthorized();
+      }
+
+      await _patientService.UpdateMyData(userId, request);
+      
+      return Ok(new
+      {
+         Message = "Data updated successfully"
+      });
+
    }
 
 
