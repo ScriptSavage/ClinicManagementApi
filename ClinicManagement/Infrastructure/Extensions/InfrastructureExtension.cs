@@ -7,6 +7,7 @@ using Infrastructure.Repositories.Patient;
 using Infrastructure.Repositories.Prescription;
 using Infrastructure.Repositories.Producer;
 using Infrastructure.Repositories.Specialization;
+using Infrastructure.Repositories.Visit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,7 @@ public static class InfrastructureExtension
         services.AddScoped<IMedicineRepository, MedicineRepository>();
         services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
+        services.AddScoped<IVisitRepository, VisitRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
