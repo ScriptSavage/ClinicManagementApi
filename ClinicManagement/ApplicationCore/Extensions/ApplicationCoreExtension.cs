@@ -12,6 +12,7 @@ using ApplicationCore.Producer.Dto;
 using ApplicationCore.Producer.Services;
 using ApplicationCore.Producer.Validators;
 using ApplicationCore.Specialization.Services;
+using ApplicationCore.Visit.Service;
 using FluentValidation;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +35,7 @@ public static class ApplicationCoreExtension
         services.AddScoped<IProducerService,ProducerService>();
         services.AddScoped<IMedicineService,MedicineService>();
         services.AddScoped<IPatientService,PatientService>();
+        services.AddScoped<IVisitService,VisitService>();
         services.AddScoped<IValidator<AuthDto.RegisterNewPatient>, RegisterNewPatientValidator>();
         services.AddScoped<IValidator<AuthDto.LoginDto>, LoginValidator>();
         services.AddScoped<IValidator<AuthDto.ChangePasswordDto>, ChangePasswordValidator>();
