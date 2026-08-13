@@ -1,0 +1,59 @@
+using ApplicationCore.Exceptions;
+using ApplicationCore.Visit.Dto;
+using Infrastructure.Entities;
+using Infrastructure.Helpers;
+using Infrastructure.Repositories.Doctor;
+using Infrastructure.Repositories.Patient;
+using Infrastructure.Repositories.Visit;
+using Microsoft.AspNetCore.Identity;
+
+namespace ApplicationCore.Visit.Service;
+
+public class VisitService : IVisitService
+{
+    private readonly IVisitRepository _visitRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IDoctorRepository _doctorRepository;
+    private readonly IPatientRepository _patientRepository;
+
+    public VisitService(IVisitRepository visitRepository, 
+        IDoctorRepository doctorRepository,
+        IPatientRepository patientRepository,
+        UserManager<ApplicationUser> userManager,
+        IUnitOfWork unitOfWork)
+    {
+        _visitRepository = visitRepository;
+        _doctorRepository = doctorRepository;
+        _patientRepository = patientRepository;
+        _userManager = userManager;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<VisitDto.Response> CreateNewVisitAsync(string userId,VisitDto.CreateVisitRequest request)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            throw new DoesNotExistsException("User not found");
+        }
+
+        var patient = await _patientRepository.GetPatientByUserIdAsync(user.Id);
+        
+        
+
+        var newVisit = new Infrastructure.Entities.Visit()
+        {
+            PatientId = patient.PatientId,
+            DoctorId = request.DoctorId,
+            Date = request.VisitDate,
+        };
+        
+        
+        
+        await _visitRepository.AddNewVisitAsync(newVisit);
+        await _unitOfWork.SaveChangesAsync();
+        return new VisitDto.Response(newVisit.Date, null);
+    }
+}
