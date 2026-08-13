@@ -34,8 +34,7 @@ public class MedicineController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = "Admin, Doctor")]
     public async Task<IActionResult> GetMedicines([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         var data = await _medicineService.GetMedicinesAsync(pageNumber, pageSize);
