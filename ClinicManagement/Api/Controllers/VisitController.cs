@@ -29,7 +29,6 @@ public class VisitController : ControllerBase
         {
             return Unauthorized();
         }
-
         var visit = await _visitService.CreateNewVisitAsync(user,visitDto);
        
         return Ok(new
