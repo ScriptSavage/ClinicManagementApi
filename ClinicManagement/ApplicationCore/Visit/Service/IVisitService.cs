@@ -5,4 +5,7 @@ namespace ApplicationCore.Visit.Service;
 public interface IVisitService
 {
     Task<VisitDto.Response> CreateNewVisitAsync(string userId,VisitDto.CreateVisitRequest request);
+    
+    Task<VisitDto.VisitDetailsResponse> GetVisitDetailsAsync(Guid visitId);
+    
 }

@@ -1,4 +1,6 @@
+using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Exceptions;
+using ApplicationCore.Patient.Dto;
 using ApplicationCore.Visit.Dto;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
@@ -55,5 +57,26 @@ public class VisitService : IVisitService
         await _visitRepository.AddNewVisitAsync(newVisit);
         await _unitOfWork.SaveChangesAsync();
         return new VisitDto.Response(newVisit.Date, null);
+    }
+
+    public async Task<VisitDto.VisitDetailsResponse> GetVisitDetailsAsync(Guid visitId)
+    {
+        var visit = await _visitRepository.GetVisitAsync(visitId);
+        
+        var doctor = await _doctorRepository.GetDoctorByIdAsync(visit.DoctorId);
+        
+        var patient = await _patientRepository.GetPatientByIdAsync(visit.PatientId);
+
+        return new VisitDto.VisitDetailsResponse(new DoctorDto.UpdateDoctorDto(doctor.FirstName,
+                doctor.LastName,
+                doctor.PWZ),
+            new PatientDto.Response(
+                patient.FirstName,
+                patient.LastName,
+                patient.Pesel),
+            visit.Date,
+            visit.Description);
+        
+       
     }
 }
