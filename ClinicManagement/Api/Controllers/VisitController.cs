@@ -18,6 +18,13 @@ public class VisitController : ControllerBase
         _visitService = visitService;
     }
 
+    [HttpGet("{visitId:guid}")]
+    [Authorize(Roles = "Admin, Doctor")]
+    public async Task<IActionResult> GetVisitDetails(Guid visitId)
+    {
+        var visitDetails = await _visitService.GetVisitDetailsAsync(visitId);
+        return Ok(visitDetails);
+    }
 
     [HttpPost]
     [Authorize(Roles =  "Patient")]
