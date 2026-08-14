@@ -8,6 +8,13 @@ namespace ApplicationCore.Patient.Dto;
 
 public static class PatientDto
 {
+
+    public record Response(
+        string FirstName,
+        string LastName,
+        string Pesel);
+    
+    
     public record PatientResponse(
         string FirstName,
         string LastName,
