@@ -1,4 +1,5 @@
 using Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Visit;
 
@@ -14,5 +15,10 @@ public class VisitRepository : IVisitRepository
     public async Task AddNewVisitAsync(Entities.Visit visit)
     {
         await _context.Visits.AddAsync(visit);
+    }
+
+    public async Task<Entities.Visit?> GetVisitAsync(Guid visitId)
+    {
+        return await  _context.Visits.FirstOrDefaultAsync(e=>e.VisitId == visitId);
     }
 }
