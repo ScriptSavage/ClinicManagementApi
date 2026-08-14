@@ -36,4 +36,12 @@ public static class AuthDto
         AddressDto.NewAddress Address
     );
 
+    public record UserDetailsDto(
+        string Username,
+        string Email,
+        string? FirstName,
+        string? LastName,
+        string RoleName
+    );
+
 }
