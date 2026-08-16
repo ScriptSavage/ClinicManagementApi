@@ -26,8 +26,33 @@ public class VisitController : ControllerBase
         return Ok(visitDetails);
     }
 
+    [HttpGet]
+    [Authorize(Roles = "Admin, Doctor")]
+    public async Task<IActionResult> GetAllVisits([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        var visits = await _visitService.GetVisitsDetailsAsync(pageNumber, pageSize);
+        return Ok(visits);
+    }
+
+
+    [HttpGet("me")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMyVisits()
+    {
+        var user = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+        
+        var myVisits = await _visitService.GetMyVisitsAsync(user);
+        
+        return Ok(myVisits);
+    }
+
     [HttpPost]
-    [Authorize(Roles =  "Patient")]
+    [Authorize(Roles = "Patient")]
     public async Task<IActionResult> CreateNewVisit([FromBody] VisitDto.CreateVisitRequest visitDto)
     {
         var user = User.FindFirstValue(JwtRegisteredClaimNames.Sub);

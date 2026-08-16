@@ -23,6 +23,7 @@ public class ProducerController : ControllerBase
 
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetProducers()
     {
         var producers = await _producerService.GetProducersAsync();
@@ -31,6 +32,7 @@ public class ProducerController : ControllerBase
     }
 
     [HttpGet("{producerId:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetProducer(Guid producerId)
     {
         var producer = await _producerService.GeProducer(producerId);
@@ -39,6 +41,7 @@ public class ProducerController : ControllerBase
     }
 
     [HttpGet("{producerId:guid}/medicines")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetMedicinesByProducerId(Guid producerId)
     {
         var medicines = await _producerService

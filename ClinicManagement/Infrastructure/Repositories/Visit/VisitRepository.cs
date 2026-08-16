@@ -21,4 +21,28 @@ public class VisitRepository : IVisitRepository
     {
         return await  _context.Visits.FirstOrDefaultAsync(e=>e.VisitId == visitId);
     }
+
+    public async Task<Entities.Visit?> GetVisitByPatientIdAsync(Guid patientId)
+    {
+        return await _context.Visits.FirstOrDefaultAsync(e => e.PatientId == patientId);
+    }
+
+    public async Task<IEnumerable<Entities.Visit>> GetVisitsAsync()
+    {
+        return _context.Visits
+            .Include(e => e.Doctor)
+            .Include(e => e.Patient)
+            .OrderBy(e => e.Date)
+            .AsNoTracking();
+    }
+
+    public async Task<IEnumerable<Entities.Visit>> GetVisitsByPatientIdAsync(Guid patientId)
+    {
+        return await _context.Visits
+            .Include(e => e.Doctor)
+            .Include(e => e.Patient)
+            .OrderBy(e => e.Date)
+            .Where(e => e.PatientId == patientId)
+            .ToListAsync();
+    }
 }

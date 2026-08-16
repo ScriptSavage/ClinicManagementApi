@@ -1,5 +1,6 @@
 using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Exceptions;
+using ApplicationCore.Helpers.Pagination;
 using ApplicationCore.Patient.Dto;
 using ApplicationCore.Visit.Dto;
 using Infrastructure.Entities;
@@ -76,7 +77,65 @@ public class VisitService : IVisitService
                 patient.Pesel),
             visit.Date,
             visit.Description);
+    }
+
+    public async Task<IEnumerable<VisitDto.VisitDetailsResponse>> GetMyVisitsAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            throw new DoesNotExistsException("User not found");
+        }
         
-       
+        var patient = await _patientRepository.GetPatientByUserIdAsync(user.Id);
+
+        if (patient is null)
+        {
+            throw new DoesNotExistsException("Patient not found");
+        }
+        
+        
+        var patientVisits = await _visitRepository.GetVisitsByPatientIdAsync(patient.PatientId);
+        
+        return patientVisits.Select(e=> new VisitDto.VisitDetailsResponse(new DoctorDto.UpdateDoctorDto(e.Doctor.FirstName,
+                e.Doctor.LastName,
+                e.Doctor.PWZ),
+            new PatientDto.Response(patient.FirstName,
+                patient.LastName,
+                patient.Pesel),
+            e.Date,
+            e.Description));
+    }
+
+    public async Task<PageResponse<VisitDto.VisitDetailsResponse>> GetVisitsDetailsAsync(int page, int pageSize)
+    {
+        var visits = (await _visitRepository.GetVisitsAsync()).AsQueryable();
+
+        visits.ApplyPagination(page, pageSize);
+        
+        var projectionData = visits.Select(e=> new VisitDto.VisitDetailsResponse(
+            new DoctorDto.UpdateDoctorDto(e.Doctor.FirstName,
+                e.Doctor.LastName,
+                e.Doctor.PWZ),
+            new PatientDto.Response(e.Patient.FirstName,
+                e.Patient.LastName,
+                e.Patient.Pesel),
+            e.Date,
+            e.Description))
+            .ToList();
+
+        
+        var totalRecords = visits.Count();
+        page = Math.Max(1, page);
+        pageSize = Math.Max(1, pageSize);
+
+        return new PageResponse<VisitDto.VisitDetailsResponse>()
+        {
+            Data = projectionData,
+            PageNumber = page,
+            PageSize = pageSize,
+            TotalPages = (int)(Math.Ceiling(totalRecords / (double)pageSize)),
+            TotalRecords = totalRecords,
+        };
     }
 }
