@@ -22,4 +22,15 @@ public class PrescriptionRepository :  IPrescriptionRepository
             .Where(e => e.PatientId == patientId)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Entities.Prescription>> GetPrescriptionsByDoctorIdAsync(Guid doctorId)
+    {
+        return await _context.Prescriptions
+            .Where(e => e.DoctorId == doctorId)
+            .Include(p=>p.Patient)
+            .Include(e => e.MedicinePrescriptions)
+            .ThenInclude(p => p.Medicine)
+            .OrderBy(e => e.CreatedAt)
+            .ToListAsync();
+    }
 }
