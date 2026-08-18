@@ -13,7 +13,7 @@ public class PrescriptionRepository :  IPrescriptionRepository
     }
 
 
-    public async Task<IEnumerable<Entities.Prescription>> GetPrescriptionByPatientIdAsync(Guid patientId)
+    public async Task<IEnumerable<Entities.Prescription>> GetPrescriptionsByPatientIdAsync(Guid patientId)
     {
         return await _context.Prescriptions
             .Include(e=>e.Doctor)
