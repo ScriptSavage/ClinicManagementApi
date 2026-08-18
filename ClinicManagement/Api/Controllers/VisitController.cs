@@ -25,7 +25,7 @@ public class VisitController : ControllerBase
         var visitDetails = await _visitService.GetVisitDetailsAsync(visitId);
         return Ok(visitDetails);
     }
-
+    
     [HttpGet]
     [Authorize(Roles = "Admin, Doctor")]
     public async Task<IActionResult> GetAllVisits([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
