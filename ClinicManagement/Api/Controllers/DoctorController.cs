@@ -68,6 +68,20 @@ public class DoctorController : ControllerBase
         return Ok(doctorDetails);
     }
 
+    [HttpGet("me/vists")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> GetMyVisits()
+    {
+        var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+        
+        var doctorVisitsDetails = await _doctorService.GetDoctorVisitsByUserAsync(userId);
+        return Ok(doctorVisitsDetails);
+    }
+
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetDoctorById(Guid id)
