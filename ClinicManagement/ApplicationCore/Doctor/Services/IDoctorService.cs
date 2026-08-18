@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Helpers.Pagination;
+using ApplicationCore.Prescription.Dto;
 using ApplicationCore.Specialization.Dto;
 using ApplicationCore.Visit.Dto;
 
@@ -26,4 +27,6 @@ public interface IDoctorService
     Task<DoctorDto.MyDetails> GetMyDetails(string userId);
     
     Task<IEnumerable<VisitDto.VisitDetailsResponse>> GetDoctorVisitsByUserAsync(string userId);
+    
+    Task<IEnumerable<PrescriptionDto.PrescriptionDetails>> GetDoctorPrescriptionsDetails(string userId);
 }

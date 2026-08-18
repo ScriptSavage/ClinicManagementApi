@@ -1,13 +1,16 @@
 ﻿using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Exceptions;
 using ApplicationCore.Helpers.Pagination;
+using ApplicationCore.Medicine.Dto;
 using ApplicationCore.Patient.Dto;
+using ApplicationCore.Prescription.Dto;
 using ApplicationCore.Specialization.Dto;
 using ApplicationCore.Visit.Dto;
 using FluentValidation;
 using Infrastructure.Repositories.Doctor;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
+using Infrastructure.Repositories.Prescription;
 using Infrastructure.Repositories.Specialization;
 using Microsoft.AspNetCore.Identity;
 
@@ -17,6 +20,7 @@ public class DoctorService : IDoctorService
 {
     private readonly IDoctorRepository  _doctorRepository;
     private readonly ISpecializationRepository _specializationRepository;
+    private readonly IPrescriptionRepository _prescriptionRepository;
     private readonly IUnitOfWork  _unitOfWork;
     private readonly IValidator<DoctorDto.CreateDoctorDto> _createDoctorValidator;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -24,12 +28,14 @@ public class DoctorService : IDoctorService
 
     public DoctorService(IDoctorRepository doctorRepository,
         ISpecializationRepository specializationRepository,
+        IPrescriptionRepository prescriptionRepository,
         IUnitOfWork unitOfWork,
         IValidator<DoctorDto.CreateDoctorDto> createDoctorValidator,
         UserManager<ApplicationUser> userManager)
     {
         _doctorRepository = doctorRepository;
         _specializationRepository = specializationRepository;
+        _prescriptionRepository = prescriptionRepository;
         _unitOfWork = unitOfWork;
         _createDoctorValidator = createDoctorValidator;
         _userManager = userManager;
@@ -270,5 +276,41 @@ public class DoctorService : IDoctorService
             e.Description
         )).ToList();
         
+    }
+
+    public async Task<IEnumerable<PrescriptionDto.PrescriptionDetails>> GetDoctorPrescriptionsDetails(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            throw new DoesNotExistsException("User not found");
+        }
+        
+        var doctor = await _doctorRepository.GetDoctorByIdAsync(user.Id);
+        if (doctor is null)
+        {
+            throw new DoesNotExistsException("Doctor not found");
+        }
+        
+        var doctorPrescriptions = await _prescriptionRepository
+            .GetPrescriptionsByDoctorIdAsync(doctor.DoctorId);
+
+
+       return doctorPrescriptions.Select(e => new PrescriptionDto.PrescriptionDetails(
+            new PatientDto.Response(
+                e.Patient.FirstName,
+                e.Patient.LastName,
+                e.Patient.Pesel),
+            e.CreatedAt,
+            e.Code,
+            e.MedicinePrescriptions.Select(m => new MedicineDto.Details(
+                m.Medicine.Name,
+                m.Medicine.ActiveSubstance,
+                m.Medicine.PharmaceuticalForm,
+                m.Dosage,
+                m.Frequency,
+                m.Instructions
+            )))).ToList();
+       
     }
 }
