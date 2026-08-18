@@ -1,7 +1,9 @@
 ﻿using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Exceptions;
 using ApplicationCore.Helpers.Pagination;
+using ApplicationCore.Patient.Dto;
 using ApplicationCore.Specialization.Dto;
+using ApplicationCore.Visit.Dto;
 using FluentValidation;
 using Infrastructure.Repositories.Doctor;
 using Infrastructure.Entities;
@@ -237,5 +239,36 @@ public class DoctorService : IDoctorService
             doctorSpecializations.Select(e=>new SpecializationDto.NewSpecialization(e.Name,
                 e.Description))
             );
+    }
+
+    public async Task<IEnumerable<VisitDto.VisitDetailsResponse>> GetDoctorVisitsByUserAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            throw new DoesNotExistsException("User not found");
+        }
+        
+        var doctor = await _doctorRepository.FindDoctorByUserIdAsync(user.Id);
+
+        if (doctor is null)
+        {
+            throw new DoesNotExistsException("Doctor not found");
+        }
+        
+        var doctorVisits = await _doctorRepository.GetDoctorVisitsDetailsAsync(doctor.DoctorId);
+
+        return doctorVisits.Select(e => new VisitDto.VisitDetailsResponse(new DoctorDto.UpdateDoctorDto(
+                e.Doctor.FirstName,
+                e.Doctor.LastName,
+                e.Doctor.PWZ),
+            new PatientDto.Response(
+                e.Patient.FirstName,
+                e.Patient.LastName,
+                e.Patient.Pesel),
+            e.Date,
+            e.Description
+        )).ToList();
+        
     }
 }

@@ -58,4 +58,14 @@ public class DoctorRepository : IDoctorRepository
     {
         return _context.Doctors.FirstOrDefault(e=>e.UserId == userId);
     }
+
+    public async Task<IEnumerable<Entities.Visit>> GetDoctorVisitsDetailsAsync(Guid doctorId)
+    {
+        return await _context.Visits
+            .Where(e => e.DoctorId == doctorId)
+            .Include(e=>e.Doctor)
+            .Include(p=>p.Patient)
+            .OrderBy(d=>d.Date)
+            .ToListAsync();
+    }
 }
