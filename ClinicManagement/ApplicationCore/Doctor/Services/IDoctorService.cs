@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.Doctor.Dto;
 using ApplicationCore.Helpers.Pagination;
 using ApplicationCore.Specialization.Dto;
+using ApplicationCore.Visit.Dto;
 
 namespace ApplicationCore.Doctor.Services;
 
@@ -23,4 +24,6 @@ public interface IDoctorService
     Task DeleteDoctorSpecialization(Guid id, Guid specializationId);
     
     Task<DoctorDto.MyDetails> GetMyDetails(string userId);
+    
+    Task<IEnumerable<VisitDto.VisitDetailsResponse>> GetDoctorVisitsByUserAsync(string userId);
 }
