@@ -171,7 +171,7 @@ public class PatientService : IPatientService
         }
         
         var patientPrescriptions = await _prescriptionRepository
-            .GetPrescriptionByPatientIdAsync(patient.PatientId);
+            .GetPrescriptionsByPatientIdAsync(patient.PatientId);
 
         return patientPrescriptions.Select(e => new PatientDto.PatientPrescriptions(
             new DoctorDto.UpdateDoctorDto(e.Doctor.FirstName, 
