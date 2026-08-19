@@ -4,7 +4,11 @@ public interface IPrescriptionRepository
 {
     Task<IEnumerable<Entities.Prescription>> GetPrescriptionsByPatientIdAsync(Guid patientId);
     
+    Task<Entities.Prescription> GetPrescriptionByPatientIdAsync(Guid patientId);
+    
     Task<IEnumerable<Entities.Prescription>> GetPrescriptionsByDoctorIdAsync(Guid doctorId);
+    
+    
     
     
 }
