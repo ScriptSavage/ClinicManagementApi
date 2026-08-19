@@ -51,7 +51,18 @@ public class PatientController : ControllerBase
       var patientVisitsAsync = await _patientService.GetPatientVisitsAsync(user);
       return Ok(patientVisitsAsync);
    }
+
    
+   [HttpGet("{patientId:guid}/visits")]
+   [Authorize(Roles = "Patient")]
+   public async Task<IActionResult> GetPatientVisits(Guid patientId,
+      [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+   {
+      var patientVisits = await _patientService
+         .GetPatientVisitsAsync(patientId,pageNumber, pageSize);
+      return Ok(patientVisits);
+   }
+
 
 
 
@@ -67,6 +78,16 @@ public class PatientController : ControllerBase
       
       var patientPrescriptions = await _patientService.GetPatientPrescriptionsAsync(patient);
       
+      return Ok(patientPrescriptions);
+   }
+
+   [HttpGet("{patientId:guid}/prescriptions")]
+   [Authorize(Roles = "Patient")]
+   public async Task<IActionResult> GetPatientPrescriptions(Guid patientId,
+      [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+   {
+      var patientPrescriptions = await _patientService
+         .GetPatientPrescriptionsAsync(patientId, pageNumber, pageSize);
       return Ok(patientPrescriptions);
    }
 

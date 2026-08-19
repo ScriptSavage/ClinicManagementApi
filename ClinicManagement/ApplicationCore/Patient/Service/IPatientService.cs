@@ -1,6 +1,8 @@
 using ApplicationCore.Address.Dto;
 using ApplicationCore.Helpers.Pagination;
 using ApplicationCore.Patient.Dto;
+using ApplicationCore.Prescription.Dto;
+using ApplicationCore.Visit.Dto;
 
 namespace ApplicationCore.Patient.Service;
 
@@ -21,4 +23,9 @@ public interface IPatientService
     Task<AddressDto.NewAddress> GetPatientAddresAsync(Guid patientId);
     
     Task UpdateMyData(string userId, PatientDto.UpdatePatientRequest request);
+    
+    Task<PageResponse<VisitDto.VisitDetailsResponse>> GetPatientVisitsAsync(Guid patientId, int page, int pageSize);
+    
+    Task<PageResponse<PrescriptionDto.PrescriptionDetails>> GetPatientPrescriptionsAsync(Guid patientId, int page,
+        int pageSize);
 }

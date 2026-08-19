@@ -13,6 +13,7 @@ using Infrastructure.Repositories.Doctor;
 using Infrastructure.Repositories.Medicine;
 using Infrastructure.Repositories.Patient;
 using Infrastructure.Repositories.Prescription;
+using Infrastructure.Repositories.Visit;
 using Microsoft.AspNetCore.Identity;
 
 namespace ApplicationCore.Patient.Service;
@@ -23,6 +24,7 @@ public class PatientService : IPatientService
     private readonly IPrescriptionRepository _prescriptionRepository;
     private readonly IDoctorRepository _doctorRepository;
     private readonly IMedicineRepository _medicineRepository;
+    private readonly IVisitRepository _visitRepository;
     private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -31,6 +33,7 @@ public class PatientService : IPatientService
         IPrescriptionRepository prescriptionRepository,
         IDoctorRepository doctorRepository,
         IMedicineRepository medicineRepository,
+        IVisitRepository visitRepository,
         IAddressRepository addressRepository,
         IUnitOfWork unitOfWork,
         UserManager<ApplicationUser> userManager)
@@ -39,6 +42,7 @@ public class PatientService : IPatientService
         _prescriptionRepository = prescriptionRepository;
         _doctorRepository = doctorRepository;
         _medicineRepository = medicineRepository;
+        _visitRepository = visitRepository;
         _addressRepository = addressRepository;
         _unitOfWork = unitOfWork;
         _userManager = userManager;
@@ -135,7 +139,7 @@ public class PatientService : IPatientService
     public async Task<PatientDto.PatientVisitsResponse> GetPatientVisitsAsync(string patientId)
     {
         var id = Guid.Parse(patientId);
-        var patient = await _patientRepository.GetPatientVisitsByIdAsync(id);
+        var patient = await _patientRepository.GetPatientVisitByIdAsync(id);
         
         if (patient is null)
         {
@@ -236,5 +240,82 @@ public class PatientService : IPatientService
        if(!string.IsNullOrWhiteSpace(request.Address.ZipCode)) address.PostalCode = request.Address.ZipCode;
 
        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<PageResponse<VisitDto.VisitDetailsResponse>> GetPatientVisitsAsync(Guid patientId,int page, int pageSize)
+    {
+        var patient = await _patientRepository.GetPatientByIdAsync(patientId);
+        if (patient is null)
+        {
+            throw new DoesNotExistsException("Patient not found");
+        }
+
+        var patientVisits = (await _visitRepository.GetVisitsByPatientIdAsync(patient.PatientId))
+            .AsQueryable()
+            .ApplyPagination(page, pageSize);
+        
+        var visits = patientVisits.Select(e=>new VisitDto.VisitDetailsResponse(
+            new DoctorDto.UpdateDoctorDto(
+                e.Doctor.FirstName,
+                e.Doctor.LastName,
+                e.Doctor.PWZ),
+            new PatientDto.Response(e.Patient.FirstName,
+                e.Patient.LastName,
+                e.Patient.Pesel),
+            e.Date,
+            e.Description)).ToList();
+        
+        var dataCount = visits.Count;
+        
+        page = Math.Max(1, page);
+        pageSize = Math.Max(1, pageSize);
+
+
+        return new PageResponse<VisitDto.VisitDetailsResponse>()
+        {
+            Data = visits,
+            PageNumber = page,
+            PageSize =  pageSize,
+            TotalPages = (int)Math.Ceiling((double)dataCount / pageSize),
+            TotalRecords =  dataCount,
+        }; 
+    }
+
+    public async Task<PageResponse<PrescriptionDto.PrescriptionDetails>> GetPatientPrescriptionsAsync(Guid patientId, 
+        int page, int pageSize)
+    {
+
+        var patient = await _patientRepository.GetPatientByIdAsync(patientId);
+        if (patient is null)
+        {
+            throw new DoesNotExistsException("Patient not found");
+        }
+        
+        var patientPrescriptions = (await _prescriptionRepository
+            .GetPrescriptionsByPatientIdAsync(patient.PatientId))
+            .AsQueryable()
+            .ApplyPagination(page, pageSize);
+        
+        
+        var projectionData = patientPrescriptions.Select(e=>new PrescriptionDto.PrescriptionDetails(new PatientDto.Response(
+            e.Patient.FirstName,e.Patient.LastName,e.Patient.Pesel),
+            e.CreatedAt,e.Code,
+            e.MedicinePrescriptions.Select(m=> new MedicineDto.Details(
+                m.Medicine.Name,
+                m.Medicine.ActiveSubstance,
+                m.Medicine.PharmaceuticalForm,
+                m.Dosage,
+                m.Frequency,
+                m.Instructions))))
+            .ToList();
+
+        return new PageResponse<PrescriptionDto.PrescriptionDetails>()
+        {
+            Data = projectionData,
+            PageNumber = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling((double)projectionData.Count / pageSize),
+            TotalRecords = projectionData.Count,
+        };
     }
 }
