@@ -43,7 +43,7 @@ public class PatientRepository : IPatientRepository
         _context.Patients.Remove(patient);
     }
 
-    public async Task<Entities.Patient?> GetPatientVisitsByIdAsync(Guid userId)
+    public async Task<Entities.Patient?> GetPatientVisitByIdAsync(Guid userId)
     {
         return await _context.Patients
             .Include(e => e.Visits)
@@ -51,7 +51,7 @@ public class PatientRepository : IPatientRepository
             .FirstOrDefaultAsync(e => e.UserId == userId);
     }
 
-    public async Task<IEnumerable<Entities.Patient?>> GetPatientPrescriptionsAsync(Guid patientId)
+    public async Task<IEnumerable<Entities.Patient?>> GetPatientsPrescriptionsAsync(Guid patientId)
     {
         return await _context.Patients
             .Include(e => e.Prescriptions)
