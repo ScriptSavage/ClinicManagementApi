@@ -21,4 +21,8 @@ public class VisitDto
         DateTime VisitDate,
         string? VisitDescription
     );
+
+
+    public record CreateDescription(
+        string Description);
 }
