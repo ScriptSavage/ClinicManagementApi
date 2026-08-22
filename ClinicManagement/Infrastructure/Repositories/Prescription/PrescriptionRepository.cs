@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Context;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Prescription;
@@ -38,5 +39,20 @@ public class PrescriptionRepository :  IPrescriptionRepository
             .ThenInclude(p => p.Medicine)
             .OrderBy(e => e.CreatedAt)
             .ToListAsync();
+    }
+
+    public async Task<Entities.Prescription> GetPrescriptionById(Guid prescriptionId)
+    {
+        return await _context.Prescriptions.FirstOrDefaultAsync(e=>e.PrescriptionId == prescriptionId);
+    }
+
+    public async Task AddNewPrescriptionAsync(Entities.Prescription prescription)
+    {
+        await _context.Prescriptions.AddAsync(prescription);
+    }
+
+    public async Task AddNewMedicinePrescriptionAsync(MedicinePrescription medicinePrescription)
+    {
+        await _context.MedicinePrescription.AddAsync(medicinePrescription);
     }
 }

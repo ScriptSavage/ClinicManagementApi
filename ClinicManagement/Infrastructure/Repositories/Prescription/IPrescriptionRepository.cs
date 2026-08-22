@@ -1,4 +1,6 @@
-﻿namespace Infrastructure.Repositories.Prescription;
+﻿using Infrastructure.Entities;
+
+namespace Infrastructure.Repositories.Prescription;
 
 public interface IPrescriptionRepository
 {
@@ -8,7 +10,10 @@ public interface IPrescriptionRepository
     
     Task<IEnumerable<Entities.Prescription>> GetPrescriptionsByDoctorIdAsync(Guid doctorId);
     
+    Task<Entities.Prescription> GetPrescriptionById(Guid prescriptionId);
     
+    Task AddNewPrescriptionAsync(Entities.Prescription prescription);
     
+    Task AddNewMedicinePrescriptionAsync(MedicinePrescription medicinePrescription);
     
 }
