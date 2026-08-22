@@ -9,6 +9,18 @@ public class PrescriptionDto
         DateTime Date,
         string Code);
 
+    public record Request(
+        IReadOnlyCollection<MedicineItemRequest> Medicines
+    );
+
+    public record MedicineItemRequest(
+        Guid MedicineId,
+        string Dosage,
+        string Frequency,
+        string Quantity,
+        string Instructions
+    );
+
     public record Details(
         string Frequency,
         string Quantity,
