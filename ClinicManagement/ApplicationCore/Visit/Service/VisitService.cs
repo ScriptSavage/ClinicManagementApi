@@ -3,6 +3,7 @@ using ApplicationCore.Exceptions;
 using ApplicationCore.Helpers.Pagination;
 using ApplicationCore.Patient.Dto;
 using ApplicationCore.Visit.Dto;
+using FluentValidation;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories.Doctor;
@@ -19,16 +20,19 @@ public class VisitService : IVisitService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IDoctorRepository _doctorRepository;
     private readonly IPatientRepository _patientRepository;
-
+    private readonly IValidator<VisitDto.CreateDescription> _completeVisitValidator;
+    
     public VisitService(IVisitRepository visitRepository, 
         IDoctorRepository doctorRepository,
         IPatientRepository patientRepository,
+        IValidator<VisitDto.CreateDescription> completeVisitValidator,
         UserManager<ApplicationUser> userManager,
         IUnitOfWork unitOfWork)
     {
         _visitRepository = visitRepository;
         _doctorRepository = doctorRepository;
         _patientRepository = patientRepository;
+        _completeVisitValidator = completeVisitValidator;
         _userManager = userManager;
         _unitOfWork = unitOfWork;
     }
@@ -137,5 +141,26 @@ public class VisitService : IVisitService
             TotalPages = (int)(Math.Ceiling(totalRecords / (double)pageSize)),
             TotalRecords = totalRecords,
         };
+    }
+
+    public async Task CompleteVisitAsync(Guid visitId, VisitDto.CreateDescription dto)
+    {
+        var visit = await _visitRepository.GetVisitAsync(visitId);
+
+        if (visit is null)
+        {
+            throw new DoesNotExistsException("Visit not found");
+        }
+
+
+        var validationResult = await _completeVisitValidator.ValidateAsync(dto);
+
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors);
+        }
+
+        visit.Description = dto.Description;
+        await _unitOfWork.SaveChangesAsync();
     }
 }

@@ -69,4 +69,24 @@ public class VisitController : ControllerBase
         });
     }
 
+    [HttpPut("{visitId:guid}/completion")]
+    [Authorize(Roles = "Doctor")]
+    public async Task<IActionResult> CompleteVisit(Guid visitId, [FromBody] VisitDto.CreateDescription dto)
+    {
+        var user = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        await _visitService.CompleteVisitAsync(visitId, dto);
+        
+        return Ok(new
+        {
+            Message = "Visit Completed"
+        });
+    }
+    
+    
+
 }
