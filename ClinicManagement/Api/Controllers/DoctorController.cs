@@ -68,7 +68,7 @@ public class DoctorController : ControllerBase
         return Ok(doctorDetails);
     }
 
-    [HttpGet("me/vists")]
+    [HttpGet("me/visits")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> GetMyVisits()
     {
