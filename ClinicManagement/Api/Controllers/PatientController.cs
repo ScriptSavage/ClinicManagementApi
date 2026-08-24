@@ -54,7 +54,7 @@ public class PatientController : ControllerBase
 
    
    [HttpGet("{patientId:guid}/visits")]
-   [Authorize(Roles = "Patient")]
+   [Authorize(Roles = "Admin")]
    public async Task<IActionResult> GetPatientVisits(Guid patientId,
       [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
    {
@@ -82,7 +82,7 @@ public class PatientController : ControllerBase
    }
 
    [HttpGet("{patientId:guid}/prescriptions")]
-   [Authorize(Roles = "Patient")]
+   [Authorize(Roles = "Admin")]
    public async Task<IActionResult> GetPatientPrescriptions(Guid patientId,
       [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
    {
