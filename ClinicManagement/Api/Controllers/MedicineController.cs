@@ -42,8 +42,7 @@ public class MedicineController : ControllerBase
     }
 
     [HttpGet("{medicineId:guid}")]
-    [Authorize(Roles = "Admin")]
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = "Admin, Doctor")]
     public async Task<IActionResult> GetMedicine(Guid medicineId)
     {
         var medicine = await _medicineService.GetMedicineAsync(medicineId);
