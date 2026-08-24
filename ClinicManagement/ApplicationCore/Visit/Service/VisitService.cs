@@ -143,15 +143,16 @@ public class VisitService : IVisitService
         };
     }
 
-    public async Task CompleteVisitAsync(Guid visitId, VisitDto.CreateDescription dto)
+    public async Task CompleteVisitAsync(Guid visitId, string doctorId, VisitDto.CreateDescription dto)
     {
-        var visit = await _visitRepository.GetVisitAsync(visitId);
+        var doctorVisit = await _visitRepository.GetVisitsByDoctorIdAsync(Guid.Parse(doctorId));
+
+        var visit = doctorVisit.FirstOrDefault(e => e.VisitId == visitId);
 
         if (visit is null)
         {
             throw new DoesNotExistsException("Visit not found");
         }
-
 
         var validationResult = await _completeVisitValidator.ValidateAsync(dto);
 

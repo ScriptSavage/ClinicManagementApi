@@ -12,5 +12,5 @@ public interface IVisitService
     Task<IEnumerable<VisitDto.VisitDetailsResponse>> GetMyVisitsAsync(string userId);
     Task<PageResponse<VisitDto.VisitDetailsResponse>> GetVisitsDetailsAsync(int page, int pageSize);
     
-    Task CompleteVisitAsync(Guid visitId,VisitDto.CreateDescription dto);
+    Task CompleteVisitAsync(Guid visitId, string doctorId, VisitDto.CreateDescription dto);
 }

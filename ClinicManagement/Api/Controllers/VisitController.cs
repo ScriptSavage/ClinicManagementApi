@@ -79,7 +79,7 @@ public class VisitController : ControllerBase
             return Unauthorized();
         }
 
-        await _visitService.CompleteVisitAsync(visitId, dto);
+        await _visitService.CompleteVisitAsync(visitId,user, dto);
         
         return Ok(new
         {
