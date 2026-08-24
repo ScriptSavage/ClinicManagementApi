@@ -16,7 +16,7 @@ public interface IDoctorRepository
     
     Task<IEnumerable<Entities.Doctor>> GetDoctorsBySpecialization(Entities.Specialization specialization);
     
-    Task<Entities.Doctor?> FindDoctorByUserIdAsync(Guid userId);
+    Task<Entities.Doctor?> GetDoctorByUserIdAsync(Guid userId);
     
     Task<IEnumerable<Entities.Visit>> GetDoctorVisitsDetailsAsync(Guid doctorId);
 }

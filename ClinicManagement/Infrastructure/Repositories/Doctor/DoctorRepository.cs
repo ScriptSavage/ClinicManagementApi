@@ -54,7 +54,7 @@ public class DoctorRepository : IDoctorRepository
             .ToListAsync();
     }
 
-    public async Task<Entities.Doctor?> FindDoctorByUserIdAsync(Guid userId)
+    public async Task<Entities.Doctor?> GetDoctorByUserIdAsync(Guid userId)
     {
         return _context.Doctors.FirstOrDefault(e=>e.UserId == userId);
     }

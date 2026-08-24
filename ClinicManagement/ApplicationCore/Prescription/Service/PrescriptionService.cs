@@ -46,7 +46,7 @@ public class PrescriptionService : IPrescriptionService
         }
         
 
-        var doctor = await _doctorRepository.FindDoctorByUserIdAsync(Guid.Parse(userId));
+        var doctor = await _doctorRepository.GetDoctorByUserIdAsync(Guid.Parse(userId));
 
         if (doctor is null)
         {
