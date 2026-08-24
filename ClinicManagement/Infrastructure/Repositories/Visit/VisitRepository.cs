@@ -45,4 +45,14 @@ public class VisitRepository : IVisitRepository
             .Where(e => e.PatientId == patientId)
             .ToListAsync();
     }
+
+    public async Task<Entities.Visit> GetVisitByDoctorIdAsync(Guid doctorId)
+    {
+        return await  _context.Visits.FirstOrDefaultAsync(e => e.DoctorId == doctorId);
+    }
+
+    public async Task<IEnumerable<Entities.Visit>> GetVisitsByDoctorIdAsync(Guid doctorId)
+    {
+        return await _context.Visits.Where(e => e.DoctorId == doctorId).ToListAsync();
+    }
 }

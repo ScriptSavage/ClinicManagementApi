@@ -11,4 +11,8 @@ public interface IVisitRepository
     Task<IEnumerable<Entities.Visit>> GetVisitsAsync();
     
     Task<IEnumerable<Entities.Visit>> GetVisitsByPatientIdAsync(Guid patientId);
+    
+    Task<Entities.Visit> GetVisitByDoctorIdAsync(Guid doctorId);
+    
+    Task<IEnumerable<Entities.Visit>> GetVisitsByDoctorIdAsync(Guid doctorId);
 }
