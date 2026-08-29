@@ -16,7 +16,7 @@ public interface IDoctorService
 
     Task UpdateDoctor(Guid id, DoctorDto.UpdateDoctorDto dto);
     
-    Task DeleteDoctor(Guid id);
+    Task DeleteDoctorAsync(Guid id);
 
     Task<IEnumerable<SpecializationDto.Response>> GetDoctorSpecializationById(Guid id);
     

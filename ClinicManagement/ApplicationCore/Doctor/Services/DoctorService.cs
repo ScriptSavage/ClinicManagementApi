@@ -160,7 +160,7 @@ public class DoctorService : IDoctorService
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task DeleteDoctor(Guid id)
+    public async Task DeleteDoctorAsync(Guid id)
     {
         var doctor = await _doctorRepository.GetDoctorByIdAsync(id);
         if (doctor is null)
