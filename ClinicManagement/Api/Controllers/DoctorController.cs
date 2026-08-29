@@ -121,4 +121,11 @@ public class DoctorController : ControllerBase
         return Ok(new { Message = "Doctor Updated Successfully" });
     }
 
+    [HttpDelete("{doctorId:guid}")]
+    public async Task<IActionResult> DeleteDoctor(Guid id)
+    {
+        await _doctorService.DeleteDoctorAsync(id);
+        return Ok(new { Message = "Doctor Deleted Successfully" });
+    }
+
 }
