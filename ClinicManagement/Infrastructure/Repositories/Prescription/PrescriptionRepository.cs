@@ -41,9 +41,15 @@ public class PrescriptionRepository :  IPrescriptionRepository
             .ToListAsync();
     }
 
-    public async Task<Entities.Prescription> GetPrescriptionById(Guid prescriptionId)
+    public async Task<Entities.Prescription?> GetPrescriptionByIdAsync(Guid prescriptionId)
     {
-        return await _context.Prescriptions.FirstOrDefaultAsync(e=>e.PrescriptionId == prescriptionId);
+        return await _context.Prescriptions
+            .AsNoTracking()
+            .Include(p => p.Patient)
+            .Include(p => p.Doctor)
+            .Include(p => p.MedicinePrescriptions)
+            .ThenInclude(mp => mp.Medicine)
+            .SingleOrDefaultAsync(p => p.PrescriptionId == prescriptionId);
     }
 
     public async Task AddNewPrescriptionAsync(Entities.Prescription prescription)

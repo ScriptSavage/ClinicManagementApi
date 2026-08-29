@@ -10,7 +10,7 @@ public interface IPrescriptionRepository
     
     Task<IEnumerable<Entities.Prescription>> GetPrescriptionsByDoctorIdAsync(Guid doctorId);
     
-    Task<Entities.Prescription> GetPrescriptionById(Guid prescriptionId);
+    Task<Entities.Prescription?> GetPrescriptionByIdAsync(Guid prescriptionId);
     
     Task AddNewPrescriptionAsync(Entities.Prescription prescription);
     
