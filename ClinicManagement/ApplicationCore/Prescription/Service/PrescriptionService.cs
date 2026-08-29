@@ -1,6 +1,8 @@
 ﻿using System.Security.Cryptography;
 using ApplicationCore.Exceptions;
 using ApplicationCore.Helpers.Pagination;
+using ApplicationCore.Medicine.Dto;
+using ApplicationCore.Patient.Dto;
 using ApplicationCore.Prescription.Dto;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
@@ -9,6 +11,7 @@ using Infrastructure.Repositories.Medicine;
 using Infrastructure.Repositories.Patient;
 using Infrastructure.Repositories.Prescription;
 using Infrastructure.Repositories.Visit;
+using Microsoft.AspNetCore.Identity;
 
 namespace ApplicationCore.Prescription.Service;
 
@@ -19,6 +22,7 @@ public class PrescriptionService : IPrescriptionService
     private readonly IPatientRepository _patientRepository;
     private readonly IDoctorRepository  _doctorRepository;
     private readonly IMedicineRepository _medicineRepository;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUnitOfWork _unitOfWork;
 
     public PrescriptionService(IPrescriptionRepository prescriptionRepository, 
@@ -26,6 +30,7 @@ public class PrescriptionService : IPrescriptionService
         IPatientRepository patientRepository,
         IDoctorRepository  doctorRepository,
         IMedicineRepository medicineRepository,
+        UserManager<ApplicationUser> userManager,
         IUnitOfWork unitOfWork)
     {
         _prescriptionRepository = prescriptionRepository;
@@ -33,6 +38,7 @@ public class PrescriptionService : IPrescriptionService
         _patientRepository = patientRepository;
         _doctorRepository = doctorRepository;
         _medicineRepository = medicineRepository;
+        _userManager = userManager;
         _unitOfWork = unitOfWork;
     }
 
@@ -87,10 +93,77 @@ public class PrescriptionService : IPrescriptionService
 
         await _unitOfWork.SaveChangesAsync();
     }
-    
-    
-    
-    
+
+    public async Task<PrescriptionDto.PrescriptionDetails> GetPrescriptionByIdAsync(string userId, Guid prescriptionId)
+    {
+        if (!Guid.TryParse(userId, out var currentUserId))
+        {
+            throw new UnauthorizedAccessException("Invalid user identifier");
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            throw new UnauthorizedAccessException("user does not exist");
+        }
+
+        var prescription = await _prescriptionRepository
+            .GetPrescriptionByIdAsync(prescriptionId);
+
+        if (prescription is null)
+        {
+            throw new DoesNotExistsException("Prescription not found");
+        }
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        
+        var hasAccess = roles.Contains("Admin") ||
+                        (roles.Contains("Patient") &&
+                         prescription.Patient.UserId == currentUserId) ||
+                        (roles.Contains("Doctor") &&
+                         prescription.Doctor.UserId == currentUserId);
+
+        if (!hasAccess)
+        {
+            throw new DoesNotExistsException("Prescription not found");
+        }
+        
+        var isOwnerPatient =
+            roles.Contains("Patient") &&
+            prescription.Patient.UserId == currentUserId;
+
+        var isIssuingDoctor =
+            roles.Contains("Doctor") &&
+            prescription.Doctor.UserId == currentUserId;
+
+        var isAdmin = roles.Contains("Admin");
+
+        if (!isAdmin && !isOwnerPatient && !isIssuingDoctor)
+        {
+            throw new DoesNotExistsException("Prescription not found");
+        }
+        
+            
+        return new PrescriptionDto.PrescriptionDetails(
+            new PatientDto.Response(
+                prescription.Patient.FirstName,
+                prescription.Patient.LastName,
+                prescription.Patient.FirstName),
+            prescription.CreatedAt,
+            prescription.Code,
+            prescription.MedicinePrescriptions.Select(e=> new MedicineDto.Details(
+                e.Medicine.Name,
+                e.Medicine.ActiveSubstance,
+                e.Medicine.PharmaceuticalForm,
+                e.Dosage,
+                e.Frequency,
+                e.Instructions))
+                .ToList());
+    }
+
+
     private static string GenerateRandomCode()
     {
         const int loginLength = 10;

@@ -5,4 +5,6 @@ namespace ApplicationCore.Prescription.Service;
 public interface IPrescriptionService
 {
     Task AddNewPrescription(Guid patientId, string userId, PrescriptionDto.Request dto);
+    
+    Task<PrescriptionDto.PrescriptionDetails> GetPrescriptionByIdAsync(string userId, Guid prescriptionId);
 }

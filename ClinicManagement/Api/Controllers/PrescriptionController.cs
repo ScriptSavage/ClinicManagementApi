@@ -34,4 +34,24 @@ public class PrescriptionController : ControllerBase
         return StatusCode(StatusCodes.Status201Created);
     }
 
+    [HttpGet("{prescriptionId:guid}")]
+    [Authorize(Roles = "Admin,Doctor,Patient")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPrescription(Guid prescriptionId)
+    {
+        var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
+
+        var result = await _prescriptionService
+            .GetPrescriptionByIdAsync(userId, prescriptionId);
+
+        return Ok(result);
+    }
+
 }
