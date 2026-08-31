@@ -286,7 +286,7 @@ public class DoctorService : IDoctorService
             throw new DoesNotExistsException("User not found");
         }
         
-        var doctor = await _doctorRepository.GetDoctorByIdAsync(user.Id);
+        var doctor = await _doctorRepository.GetDoctorByUserIdAsync(user.Id);
         if (doctor is null)
         {
             throw new DoesNotExistsException("Doctor not found");

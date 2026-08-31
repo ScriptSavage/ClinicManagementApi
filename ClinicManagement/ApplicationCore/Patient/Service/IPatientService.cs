@@ -18,9 +18,9 @@ public interface IPatientService
     
     Task<PatientDto.PatientVisitsResponse> GetPatientVisitsAsync(string patientId);
     
-    Task<IEnumerable<PatientDto.PatientPrescriptions>> GetPatientPrescriptionsAsync(string patientId);
+    Task<IEnumerable<PatientDto.PatientPrescriptions>> GetPatientPrescriptionsAsync(string userId);
     
-    Task<AddressDto.NewAddress> GetPatientAddresAsync(Guid patientId);
+    Task<AddressDto.NewAddress> GetPatientAddressAsync(Guid patientId);
     
     Task UpdateMyData(string userId, PatientDto.UpdatePatientRequest request);
     

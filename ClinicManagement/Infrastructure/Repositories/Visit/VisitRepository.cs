@@ -55,4 +55,9 @@ public class VisitRepository : IVisitRepository
     {
         return await _context.Visits.Where(e => e.DoctorId == doctorId).ToListAsync();
     }
+
+    public void DeleteVisit(Entities.Visit visit)
+    {
+        _context.Visits.Remove(visit);
+    }
 }

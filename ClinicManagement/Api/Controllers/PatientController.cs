@@ -31,7 +31,7 @@ public class PatientController : ControllerBase
    [Authorize(Roles = "Admin")]
    public async Task<IActionResult> GetPatientAddress(Guid patientId)
    {
-      var patientAddressAsync = await _patientService.GetPatientAddresAsync(patientId);
+      var patientAddressAsync = await _patientService.GetPatientAddressAsync(patientId);
       return Ok(patientAddressAsync);
    }
 
@@ -49,6 +49,7 @@ public class PatientController : ControllerBase
       }
 
       var patientVisitsAsync = await _patientService.GetPatientVisitsAsync(user);
+      
       return Ok(patientVisitsAsync);
    }
 

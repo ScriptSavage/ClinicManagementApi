@@ -138,12 +138,18 @@ public class PatientService : IPatientService
 
     public async Task<PatientDto.PatientVisitsResponse> GetPatientVisitsAsync(string patientId)
     {
-        var id = Guid.Parse(patientId);
-        var patient = await _patientRepository.GetPatientVisitByIdAsync(id);
+        var user = await _userManager.FindByIdAsync(patientId);
+        if (user is null)
+        {
+            throw new UnauthorizedAccessException("User not found");
+        }
+
+        
+        var patient = await _patientRepository.GetPatientByUserIdAsync(user.Id);
         
         if (patient is null)
         {
-            throw new Exception("Patient not found");
+            throw new UnauthorizedAccessException("Patient not found");
         }
         
         
@@ -159,9 +165,9 @@ public class PatientService : IPatientService
         return data;
     }
 
-    public async Task<IEnumerable<PatientDto.PatientPrescriptions>> GetPatientPrescriptionsAsync(string patientId)
+    public async Task<IEnumerable<PatientDto.PatientPrescriptions>> GetPatientPrescriptionsAsync(string userId)
     {
-        var user = await _userManager.FindByIdAsync(patientId);
+        var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
         {
             throw new DoesNotExistsException("User not found");
@@ -192,7 +198,7 @@ public class PatientService : IPatientService
                 p.Instructions))));
     }
 
-    public async Task<AddressDto.NewAddress> GetPatientAddresAsync(Guid patientId)
+    public async Task<AddressDto.NewAddress> GetPatientAddressAsync(Guid patientId)
     {
         var patient = await _patientRepository.GetPatientByIdAsync(patientId);
 

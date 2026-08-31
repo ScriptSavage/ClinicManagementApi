@@ -143,11 +143,25 @@ public class VisitService : IVisitService
         };
     }
 
-    public async Task CompleteVisitAsync(Guid visitId, string doctorId, VisitDto.CreateDescription dto)
+    public async Task CompleteVisitAsync(Guid visitId, string userId, VisitDto.CreateDescription dto)
     {
-        var doctorVisit = await _visitRepository.GetVisitsByDoctorIdAsync(Guid.Parse(doctorId));
+        var user = await _userManager.FindByIdAsync(userId);
 
-        var visit = doctorVisit.FirstOrDefault(e => e.VisitId == visitId);
+        if (user is null)
+        {
+            throw new UnauthorizedAccessException("User not found");
+        }
+        
+        var doctor = await _doctorRepository.GetDoctorByUserIdAsync(user.Id);
+        if (doctor is null)
+        {
+            throw new UnauthorizedAccessException("Doctor not found");
+        }
+        
+
+        var doctorVisit = await _visitRepository.GetVisitsByDoctorIdAsync(doctor.DoctorId);
+
+        var visit = doctorVisit.SingleOrDefault(e => e.VisitId == visitId);
 
         if (visit is null)
         {
@@ -162,6 +176,61 @@ public class VisitService : IVisitService
         }
 
         visit.Description = dto.Description;
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task RescheduleVisitAsync(string userId, Guid visitId, VisitDto.Reschedule reschedule)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            throw new UnauthorizedAccessException("User not found");
+        }
+        
+        
+        var patient = await _patientRepository.GetPatientByUserIdAsync(user.Id);
+
+        if (patient is null)
+        {
+            throw new UnauthorizedAccessException("Patient not found");
+        }
+        
+        var patientVisits = await _visitRepository.GetVisitsByPatientIdAsync(patient.PatientId);
+
+       var visit =  patientVisits.FirstOrDefault(e => e.VisitId == visitId);
+
+       if (visit is null)
+       {
+           throw new DoesNotExistsException("Visit not found");
+       }
+       
+       visit.Date = reschedule.NewDate;
+       await _unitOfWork.SaveChangesAsync();
+       
+    }
+
+    public async Task CancelVisitAsync(string userId, Guid visitId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            throw new UnauthorizedAccessException("User not found");
+        }
+        
+        var patient = await _patientRepository.GetPatientByUserIdAsync(user.Id);
+        if (patient is null)
+        {
+            throw new UnauthorizedAccessException("Patient not found");
+        }
+        
+        var patientVisits = await _visitRepository.GetVisitsByPatientIdAsync(patient.PatientId);
+        var visit =  patientVisits.FirstOrDefault(e => e.VisitId == visitId);
+        if (visit is null)
+        {
+            throw new DoesNotExistsException("Visit not found");
+        }
+        
+        _visitRepository.DeleteVisit(visit);
         await _unitOfWork.SaveChangesAsync();
     }
 }

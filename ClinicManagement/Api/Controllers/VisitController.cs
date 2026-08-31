@@ -86,7 +86,47 @@ public class VisitController : ControllerBase
             Message = "Visit Completed"
         });
     }
-    
-    
+
+
+    [HttpPatch("{visitId:guid}/reschedule")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> RescheduleVisit(Guid visitId, [FromBody] VisitDto.Reschedule dto)
+    {
+        var user = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+        
+        await _visitService.RescheduleVisitAsync(user, visitId, dto);
+        
+        return Ok(new
+        {
+            Message = "Visit Rescheduled"
+        });
+    }
+
+
+    [HttpPatch("{visitId:guid}/cancel")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> CancelVisit(Guid visitId)
+    {
+        var user = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+        
+        await _visitService.CancelVisitAsync(user, visitId);
+        
+        return Ok(new
+        {
+            Message = "Visit Cancelled"
+        });
+    }
+
+
 
 }

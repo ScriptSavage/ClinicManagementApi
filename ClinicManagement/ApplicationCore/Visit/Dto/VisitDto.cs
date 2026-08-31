@@ -25,4 +25,7 @@ public class VisitDto
 
     public record CreateDescription(
         string Description);
+
+    public record Reschedule(
+        DateTime NewDate);
 }
