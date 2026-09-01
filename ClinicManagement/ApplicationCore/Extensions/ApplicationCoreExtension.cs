@@ -46,6 +46,7 @@ public static class ApplicationCoreExtension
         services.AddScoped<IValidator<DoctorDto.CreateDoctorDto>,CreateNewDoctorValidator>();
         services.AddScoped<IValidator<AddressDto.NewAddress>, NewAddressValidator>();
         services.AddScoped<IValidator<ProducerDto.NewProducer>, NewProducerValidator>();
+        services.AddScoped<IValidator<ProducerDto.UpdateProducer>, UpdateProducerValidator>();
         services.AddScoped<IValidator<VisitDto.CreateDescription>, CompleteVisitValidator>();
     }
 }

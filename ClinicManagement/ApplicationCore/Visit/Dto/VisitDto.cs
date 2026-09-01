@@ -28,4 +28,8 @@ public class VisitDto
 
     public record Reschedule(
         DateTime NewDate);
+    
+    public record CancelVisit(
+       string CancelReason
+    );
 }

@@ -15,6 +15,6 @@ public interface IVisitService
     Task CompleteVisitAsync(Guid visitId, string userId, VisitDto.CreateDescription dto);
     
     Task RescheduleVisitAsync(string userId, Guid visitId, VisitDto.Reschedule reschedule);
-    Task CancelVisitAsync(string userId, Guid visitId);
+    Task CancelVisitAsync(string userId, Guid visitId, VisitDto.CancelVisit dto);
     
 }

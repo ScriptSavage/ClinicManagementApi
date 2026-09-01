@@ -13,10 +13,22 @@ public class Visit
 
     public DateTime Date { get; set; }
 
+    public VisitStatus? VisitStatus { get; set; }
+
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
 
     public string? Description { get; set; }
     public string? CancelReason { get; set; }
     public DateTime? CancelAt { get; set; }
     
+    
+    
+}
+
+public enum VisitStatus
+{
+    Scheduled,
+    Completed,
+    Cancelled,
+    NoShow
 }

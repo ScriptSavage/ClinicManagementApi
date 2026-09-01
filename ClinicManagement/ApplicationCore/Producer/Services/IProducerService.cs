@@ -15,4 +15,6 @@ public interface IProducerService
     Task<IEnumerable<ProducerDto.NewProducer>> GetProducersAsync();
     
     Task<IEnumerable<MedicineDto.Response>> GetMedicinesByProducerIdAsync(Guid producerId);
+    
+    Task UpdateProducer(Guid producerId, ProducerDto.UpdateProducer producer);
 }

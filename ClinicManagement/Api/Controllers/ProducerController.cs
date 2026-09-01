@@ -80,8 +80,17 @@ public class ProducerController : ControllerBase
             Message = "Medicine added"
         });
     }
-    
-    
-    
+
+
+    [HttpPatch("{producerId:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateProducer(Guid producerId,[FromBody] ProducerDto.UpdateProducer producerDto)
+    {
+        await _producerService.UpdateProducer(producerId, producerDto);
+        
+        return NoContent();
+    }
+
+
 
 }

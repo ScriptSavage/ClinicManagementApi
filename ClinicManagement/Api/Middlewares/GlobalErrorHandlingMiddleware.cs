@@ -21,7 +21,7 @@ public class GlobalErrorHandlingMiddleware : IMiddleware
         }
         catch (ValidationException ex)
         {
-            await context.Response.WriteAsync(ex.Message);
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
         }
         catch (UnauthorizedAccessException e)
         {

@@ -48,13 +48,20 @@ public class VisitService : IVisitService
 
         var patient = await _patientRepository.GetPatientByUserIdAsync(user.Id);
         
-        
+        var doctor = await _doctorRepository.GetDoctorByIdAsync(request.DoctorId);
+
+        if (doctor is null)
+        {
+            throw new DoesNotExistsException("Doctor not found");
+        }
+
 
         var newVisit = new Infrastructure.Entities.Visit()
         {
             PatientId = patient.PatientId,
             DoctorId = request.DoctorId,
             Date = request.VisitDate,
+            VisitStatus = VisitStatus.Scheduled
         };
         
         
@@ -176,6 +183,7 @@ public class VisitService : IVisitService
         }
 
         visit.Description = dto.Description;
+        visit.VisitStatus = VisitStatus.Completed;
         await _unitOfWork.SaveChangesAsync();
     }
 
@@ -209,7 +217,7 @@ public class VisitService : IVisitService
        
     }
 
-    public async Task CancelVisitAsync(string userId, Guid visitId)
+    public async Task CancelVisitAsync(string userId, Guid visitId,VisitDto.CancelVisit dto)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
@@ -230,7 +238,9 @@ public class VisitService : IVisitService
             throw new DoesNotExistsException("Visit not found");
         }
         
-        _visitRepository.DeleteVisit(visit);
+        visit.CancelReason = dto.CancelReason;
+        visit.CancelAt = DateTime.UtcNow;
+        visit.VisitStatus = VisitStatus.Cancelled;
         await _unitOfWork.SaveChangesAsync();
     }
 }

@@ -122,6 +122,7 @@ public class DoctorController : ControllerBase
     }
 
     [HttpDelete("{doctorId:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteDoctor(Guid id)
     {
         await _doctorService.DeleteDoctorAsync(id);

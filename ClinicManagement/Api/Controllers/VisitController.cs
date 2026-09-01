@@ -110,7 +110,7 @@ public class VisitController : ControllerBase
 
     [HttpPatch("{visitId:guid}/cancel")]
     [Authorize(Roles = "Patient")]
-    public async Task<IActionResult> CancelVisit(Guid visitId)
+    public async Task<IActionResult> CancelVisit(Guid visitId,[FromBody] VisitDto.CancelVisit dto)
     {
         var user = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
@@ -119,7 +119,7 @@ public class VisitController : ControllerBase
             return Unauthorized();
         }
         
-        await _visitService.CancelVisitAsync(user, visitId);
+        await _visitService.CancelVisitAsync(user, visitId, dto);
         
         return Ok(new
         {

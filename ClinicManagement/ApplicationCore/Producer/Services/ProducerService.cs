@@ -14,16 +14,19 @@ public class ProducerService : IProducerService
     private readonly IMedicineRepository _medicineRepository;
     private readonly IUnitOfWork  _unitOfWork;
     private readonly IValidator<ProducerDto.NewProducer>  _validator;
+    private readonly IValidator<ProducerDto.UpdateProducer> _updateProducerValidator;
 
     public ProducerService(IProducerRepository producerRepository,
         IMedicineRepository medicineRepository,
         IUnitOfWork unitOfWork,
-        IValidator<ProducerDto.NewProducer> validator)
+        IValidator<ProducerDto.NewProducer> validator,
+        IValidator<ProducerDto.UpdateProducer> updateProducerValidator)
     {
         _producerRepository = producerRepository;
         _medicineRepository = medicineRepository;
         _unitOfWork = unitOfWork;
         _validator = validator;
+        _updateProducerValidator = updateProducerValidator;
     }
 
     public async Task AddNewProducer(ProducerDto.NewProducer dto)
@@ -91,5 +94,25 @@ public class ProducerService : IProducerService
             e.Name,
             e.ActiveSubstance,
             e.PharmaceuticalForm));
+    }
+
+    public async Task UpdateProducer(Guid producerId, ProducerDto.UpdateProducer producer)
+    {
+        var producerToUpdate = await _producerRepository.GetProducer(producerId);
+
+        if (producerToUpdate is null)
+        {
+            throw new DoesNotExistsException("Producer not found");
+        }
+
+        var validationResult = await _updateProducerValidator.ValidateAsync(producer);
+
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors);
+        }
+
+        producerToUpdate.Name = producer.Name;
+        await _unitOfWork.SaveChangesAsync();
     }
 }
