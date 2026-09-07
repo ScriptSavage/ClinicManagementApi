@@ -11,4 +11,7 @@ public class ApplicationUser : IdentityUser<Guid>
     public Patient? Patient { get; set; }
     public Doctor? Doctor { get; set; }
 
+
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+
 }
