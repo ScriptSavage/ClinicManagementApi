@@ -9,6 +9,7 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
@@ -35,14 +36,29 @@ public class AuthController : ControllerBase
         });
     }
 
+    [AllowAnonymous]
     [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] AuthDto.LoginDto loginRequest)
     {
-        var accessToken = await _authService.GenerateAccessToken(loginRequest);
-        return Ok(accessToken);
+        var access = await _authService.LoginAsync(loginRequest);
+        return Ok(access);
     }
 
+    [AllowAnonymous]
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] AuthDto.RefreshTokenDto request)
+    {
+        return Ok(await _authService.RefreshAsync(request));
+    }
+
+    [AllowAnonymous]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] AuthDto.RefreshTokenDto request)
+    {
+        await _authService.LogoutAsync(request);
+        return NoContent();
+    }
 
 
     [Authorize]
