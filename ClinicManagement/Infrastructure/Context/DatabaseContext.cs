@@ -17,6 +17,7 @@ public class DatabaseContext : IdentityDbContext<ApplicationUser,ApplicationRole
 
     public DbSet<ApplicationUser> Users { get; set; }
     public DbSet<ApplicationRole> Roles { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Specialization> Specializations { get; set; }
     public DbSet<Doctor> Doctors { get; set; }
     public DbSet<Address> Addresses { get; set; }
@@ -32,6 +33,7 @@ public class DatabaseContext : IdentityDbContext<ApplicationUser,ApplicationRole
     {
         builder.ApplyConfiguration(new ApplicationUserConfiguration());
         builder.ApplyConfiguration(new ApplicationRoleConfiguration());
+        builder.ApplyConfiguration(new RefreshTokenConfiguration());
         builder.ApplyConfiguration(new PatientConfiguration());
         builder.ApplyConfiguration(new DoctorConfiguration());
         builder.ApplyConfiguration(new AddressConfiguration());
