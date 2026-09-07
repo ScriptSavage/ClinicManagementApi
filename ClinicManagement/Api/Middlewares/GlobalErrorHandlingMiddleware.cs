@@ -23,6 +23,10 @@ public class GlobalErrorHandlingMiddleware : IMiddleware
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
         }
+        catch (AuthenticationFailedException)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        }
         catch (UnauthorizedAccessException e)
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
