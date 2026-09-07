@@ -1,6 +1,7 @@
 ﻿using Infrastructure.Context;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories.Address;
+using Infrastructure.Repositories.Auth;
 using Infrastructure.Repositories.Doctor;
 using Infrastructure.Repositories.Medicine;
 using Infrastructure.Repositories.Patient;
@@ -27,6 +28,7 @@ public static class InfrastructureExtension
 
 
         services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IDoctorRepository, DoctorRepository>();
         services.AddScoped<ISpecializationRepository, SpecializationRepository>();
         services.AddScoped<IProducerRepository, ProducerRepository>();
