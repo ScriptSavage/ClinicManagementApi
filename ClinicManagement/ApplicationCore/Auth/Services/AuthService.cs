@@ -4,10 +4,12 @@ using System.Security.Cryptography;
 using System.Text;
 using ApplicationCore.Address.Dto;
 using ApplicationCore.Auth.Dto;
+using ApplicationCore.Exceptions;
 using FluentValidation;
 using Infrastructure.Entities;
 using Infrastructure.Helpers;
 using Infrastructure.Repositories.Address;
+using Infrastructure.Repositories.Auth;
 using Infrastructure.Repositories.Patient;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +30,7 @@ public class AuthService : IAuthService
     private readonly IValidator<AddressDto.NewAddress> _registerNewAddressValidator;
     private readonly IValidator<AuthDto.ChangePasswordDto>  _changePasswordValidator;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
 
 
     public AuthService(UserManager<ApplicationUser> userManager,
@@ -39,7 +42,8 @@ public class AuthService : IAuthService
         IValidator<AuthDto.LoginDto> loginValidator,
         IValidator<AuthDto.ChangePasswordDto> changePasswordValidator,
         IConfiguration configuration,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IRefreshTokenRepository refreshTokenRepository)
     {
         _userManager = userManager;
         _unitOfWork = unitOfWork;
@@ -51,6 +55,7 @@ public class AuthService : IAuthService
         _changePasswordValidator = changePasswordValidator;
         _configuration = configuration;
         _signInManager = signInManager;
+        _refreshTokenRepository = refreshTokenRepository;
     }
     
     private const string RoleClaimType = "role";
@@ -135,58 +140,84 @@ public class AuthService : IAuthService
 
 
     
-    public async Task<string> GenerateAccessToken(AuthDto.LoginDto request)
+    public async Task<AuthDto.AuthResponse> LoginAsync(AuthDto.LoginDto request)
     {
-
-            var loginValidationResultAsync = await _loginValidator.ValidateAsync(request);
-
-            if (!loginValidationResultAsync.IsValid)
-            {
-                throw new ValidationException(loginValidationResultAsync.Errors);
-            }
-
-            var user = await _userManager.FindByNameAsync(request.Username);
-
-            if (user is null)
-            {
-                throw new ArgumentException("User or password is incorrect");
-            }
-
-
-            var passwordIsCorrect = await _userManager.CheckPasswordAsync(user, request.Password);
-
-            if (!passwordIsCorrect)
-            {
-                throw new UnauthorizedAccessException("User or password is incorrect");
-            }
-
-            var jwtConfig = _configuration.GetSection("JwtSettings");
-
-            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig["Secret"]));
-
-            var roles = await _userManager.GetRolesAsync(user);
-
-            var claims = new List<Claim>
-            {
-                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            claims.AddRange(roles.Select(role => new Claim(RoleClaimType, role)));
-
-
-            var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: jwtConfig["Issuer"],
-                audience: jwtConfig["Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtConfig["ExpirationMinutes"])),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+        var validationResult = await _loginValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors);
         }
+
+        var user = await _userManager.FindByNameAsync(request.Username);
+        if (user is null)
+        {
+            throw new AuthenticationFailedException("User or password is incorrect");
+        }
+
+        var signInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
+        if (!signInResult.Succeeded)
+        {
+            throw new AuthenticationFailedException("User or password is incorrect");
+        }
+
+        var accessToken = await GenerateAccessTokenAsync(user);
+        var refreshToken = GenerateRefreshToken();
+        var now = DateTime.UtcNow;
+        var storedToken = CreateRefreshToken(user, refreshToken, Guid.NewGuid(), now,
+            now.AddDays(GetPositiveJwtSetting("RefreshTokenExpirationDays")));
+
+        await _refreshTokenRepository.AddAsync(storedToken);
+        await _unitOfWork.SaveChangesAsync();
+
+        return new AuthDto.AuthResponse(accessToken, refreshToken);
+    }
+
+    public async Task<AuthDto.AuthResponse> RefreshAsync(AuthDto.RefreshTokenDto request)
+    {
+        ValidateRefreshToken(request.RefreshToken);
+        var storedToken = await _refreshTokenRepository.FindByHashAsync(HashToken(request.RefreshToken));
+        if (storedToken is null || storedToken.Expires <= DateTime.UtcNow)
+        {
+            throw new AuthenticationFailedException("Refresh token is invalid or expired");
+        }
+
+        var user = await _userManager.FindByIdAsync(storedToken.UserId.ToString());
+        if (user is null || await _userManager.IsLockedOutAsync(user) ||
+            storedToken.SecurityStamp != user.SecurityStamp)
+        {
+            await _refreshTokenRepository.RevokeFamilyAsync(storedToken.FamilyId, DateTime.UtcNow);
+            throw new AuthenticationFailedException("Refresh token is invalid or expired");
+        }
+
+        var accessToken = await GenerateAccessTokenAsync(user);
+        var refreshToken = GenerateRefreshToken();
+        var now = DateTime.UtcNow;
+        var replacement = CreateRefreshToken(user, refreshToken, storedToken.FamilyId, now, storedToken.Expires);
+
+        await using var transaction = await _unitOfWork.BeginTransactionAsync();
+        if (!await _refreshTokenRepository.TryRevokeAsync(storedToken.RefreshTokenId, replacement.TokenHash, now))
+        {
+            await _refreshTokenRepository.RevokeFamilyAsync(storedToken.FamilyId, now);
+            await transaction.CommitAsync();
+            throw new AuthenticationFailedException("Refresh token is invalid or expired");
+        }
+
+        await _refreshTokenRepository.AddAsync(replacement);
+        await _unitOfWork.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        return new AuthDto.AuthResponse(accessToken, refreshToken);
+    }
+
+    public async Task LogoutAsync(AuthDto.RefreshTokenDto request)
+    {
+        ValidateRefreshToken(request.RefreshToken);
+        var storedToken = await _refreshTokenRepository.FindByHashAsync(HashToken(request.RefreshToken));
+        if (storedToken is not null)
+        {
+            await _refreshTokenRepository.RevokeFamilyAsync(storedToken.FamilyId, DateTime.UtcNow);
+        }
+    }
 
     
     public async Task ChangePasswordAsync(string userId, AuthDto.ChangePasswordDto request)
@@ -210,7 +241,15 @@ public class AuthService : IAuthService
             throw new ArgumentException("Passwords do not match");
         }
 
-        await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        await using var transaction = await _unitOfWork.BeginTransactionAsync();
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        if (!result.Succeeded)
+        {
+            throw new ValidationException(string.Join(", ", result.Errors.Select(x => x.Description)));
+        }
+
+        await _refreshTokenRepository.RevokeUserTokensAsync(user.Id, DateTime.UtcNow);
+        await transaction.CommitAsync();
     }
 
     public async Task<AuthDto.DetailsDto> GetDetailsAsync(string userId)
@@ -237,6 +276,70 @@ public class AuthService : IAuthService
                patientDetails.Address.Street,
                patientDetails.Address.City,
                patientDetails.Address.PostalCode));
+    }
+
+
+    private async Task<string> GenerateAccessTokenAsync(ApplicationUser user)
+    {
+        var jwtConfig = _configuration.GetRequiredSection("JwtSettings");
+        var secret = jwtConfig["Secret"] ?? throw new InvalidOperationException("JWT secret is missing");
+        var roles = await _userManager.GetRolesAsync(user);
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+        claims.AddRange(roles.Select(role => new Claim(RoleClaimType, role)));
+
+        var token = new JwtSecurityToken(
+            issuer: jwtConfig["Issuer"],
+            audience: jwtConfig["Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(GetPositiveJwtSetting("ExpirationMinutes")),
+            signingCredentials: new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)), SecurityAlgorithms.HmacSha256));
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private int GetPositiveJwtSetting(string name)
+    {
+        if (!int.TryParse(_configuration[$"JwtSettings:{name}"], out var value) || value <= 0)
+        {
+            throw new InvalidOperationException($"JwtSettings:{name} must be a positive integer");
+        }
+
+        return value;
+    }
+
+    private static RefreshToken CreateRefreshToken(ApplicationUser user, string token, Guid familyId,
+        DateTime created, DateTime expires) => new()
+    {
+        RefreshTokenId = Guid.NewGuid(),
+        UserId = user.Id,
+        FamilyId = familyId,
+        TokenHash = HashToken(token),
+        SecurityStamp = user.SecurityStamp ?? throw new InvalidOperationException("User security stamp is missing"),
+        Created = created,
+        Expires = expires
+    };
+
+    private static void ValidateRefreshToken(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token) || token.Length != 88)
+        {
+            throw new ValidationException("A refresh token containing 88 characters is required");
+        }
+    }
+
+    private static string HashToken(string token) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+
+    private static string GenerateRefreshToken()
+    {
+        var randomBytes = RandomNumberGenerator.GetBytes(64);
+        return Convert.ToBase64String(randomBytes);
     }
 
     private async Task<string> GenerateUniqueLoginAsync()
