@@ -1,9 +1,16 @@
 ﻿using ApplicationCore.Address.Dto;
 
+using System.ComponentModel.DataAnnotations;
+
 namespace ApplicationCore.Auth.Dto;
 
 public static class AuthDto
 {
+
+    public record AuthResponse(string Token, string RefreshToken);
+
+    public record RefreshTokenDto([Required, StringLength(88, MinimumLength = 88)] string RefreshToken);
+
     public record RegisterNewPatient(
         string FirstName,
         string LastName,
