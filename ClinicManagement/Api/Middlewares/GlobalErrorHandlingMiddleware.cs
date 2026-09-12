@@ -22,6 +22,7 @@ public class GlobalErrorHandlingMiddleware : IMiddleware
         catch (ValidationException ex)
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsync(ex.Message);
         }
         catch (AuthenticationFailedException)
         {
